@@ -1,6 +1,6 @@
 /* cairo - a vector graphics library with display and print output
  *
- * Copyright © 2006, 2007 Mozilla Corporation
+ * Copyright ï¿½ 2006, 2007 Mozilla Corporation
  *
  * This library is free software; you can redistribute it and/or
  * modify it either under the terms of the GNU Lesser General Public
@@ -43,6 +43,7 @@
 // #include <ApplicationServices/ApplicationServices.h>
 #include <QuartzCore/QuartzCore.h>
 #include <CoreText/CoreText.h>
+
 
 CAIRO_BEGIN_DECLS
 
