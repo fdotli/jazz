@@ -35,7 +35,7 @@
 ;;;  See www.jazzscheme.org for details.
 
 
-(##actlog-stop)
+;(##actlog-stop)
 
 
 ;; put here to be as early as possible in the boot

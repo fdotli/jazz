@@ -921,8 +921,7 @@
     
     (define jazz:hidden-frames
       (%%list
-        ##dynamic-env-bind
-        ##thread-start-action!))
+        ##dynamic-env-bind))
     
     (define (jazz:hidden-frame? frame)
       (%%memq frame jazz:hidden-frames))
@@ -1483,9 +1482,9 @@
     (define jazz:thread-state thread-state)
     (define jazz:thread-state-abnormally-terminated-reason thread-state-abnormally-terminated-reason)
     (define jazz:thread-state-abnormally-terminated? thread-state-abnormally-terminated?)
-    (define jazz:thread-state-active-timeout thread-state-active-timeout)
-    (define jazz:thread-state-active-waiting-for thread-state-active-waiting-for)
-    (define jazz:thread-state-active? thread-state-active?)
+    (define jazz:thread-state-waiting-timeout thread-state-waiting-timeout)
+    (define jazz:thread-state-waiting-for thread-state-waiting-for)
+    (define jazz:thread-state-waiting? thread-state-waiting?)
     (define jazz:thread-state-initialized? thread-state-initialized?)
     (define jazz:thread-state-normally-terminated-result thread-state-normally-terminated-result)
     (define jazz:thread-state-normally-terminated? thread-state-normally-terminated?)
@@ -1493,13 +1492,7 @@
     
     
     (define (jazz:thread-continuation thread)
-      (if (jazz:thread-state-active? (jazz:thread-state thread))
-          (let ((cont (jazz:thread-cont thread)))
-            ;; hack - gambit thread init with dummy continuation
-            (if (##not (##eq? (##vector-ref cont 0) #!void))
-                cont
-              #f))
-        #f))
+      (jazz:thread-cont thread))
     
     
     (define (jazz:thread-mutexes thread)

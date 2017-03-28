@@ -4539,9 +4539,9 @@
            (system-format port "Normally terminated"))
           ((thread-state-abnormally-terminated? state)
            (system-format port "Abnormally terminated"))
-          ((thread-state-active? state)
-           (let ((wf (thread-state-active-waiting-for state))
-                 (to (thread-state-active-timeout state)))
+          ((thread-state-waiting? state)
+           (let ((wf (thread-state-waiting-for state))
+                 (to (thread-state-waiting-timeout state)))
              (cond (wf
                     (system-format port "Waiting ")
                     (write wf port)
