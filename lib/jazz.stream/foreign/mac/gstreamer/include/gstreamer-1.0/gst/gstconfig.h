@@ -104,7 +104,7 @@
  * http://docs.oracle.com/cd/E19205-01/820-4155/c++_faq.html#Vers6
  * https://software.intel.com/en-us/node/583402
  */
-#if defined(__alpha__) || defined(__arc__) || defined(__arm__) || defined(__aarch64__) || defined(__bfin) || defined(__hppa__) || defined(__nios2__) || defined(__MICROBLAZE__) || defined(__mips__) || defined(__or1k__) || defined(__sh__) || defined(__SH4__) || defined(__sparc__) || defined(__sparc) || defined(__ia64__) || defined(_M_ALPHA) || defined(_M_ARM) || defined(_M_IA64) || defined(__xtensa__)
+#if defined(__alpha__) || defined(__arc__) || defined(__arm__) || defined(__aarch64__) || defined(__bfin) || defined(__hppa__) || defined(__nios2__) || defined(__MICROBLAZE__) || defined(__mips__) || defined(__or1k__) || defined(__sh__) || defined(__SH4__) || defined(__sparc__) || defined(__sparc) || defined(__ia64__) || defined(_M_ALPHA) || defined(_M_ARM) || defined(_M_IA64) || defined(__xtensa__) || defined(__e2k__)
 #  define GST_HAVE_UNALIGNED_ACCESS 0
 #elif defined(__i386__) || defined(__i386) || defined(__amd64__) || defined(__amd64) || defined(__x86_64__) || defined(__ppc__) || defined(__ppc64__) || defined(__powerpc__) || defined(__powerpc64__) || defined(__m68k__) || defined(_M_IX86) || defined(_M_AMD64) || defined(_M_X64) || defined(__s390__) || defined(__s390x__) || defined(__zarch__)
 #  define GST_HAVE_UNALIGNED_ACCESS 1
@@ -146,12 +146,29 @@
 #  define GST_EXPORT __declspec(dllimport) extern
 # endif
 #else
-# define GST_PLUGIN_EXPORT
-# if (defined(__SUNPRO_C) && (__SUNPRO_C >= 0x590))
+# if defined(__GNUC__) || (defined(__SUNPRO_C) && (__SUNPRO_C >= 0x590))
+#  define GST_PLUGIN_EXPORT __attribute__ ((visibility ("default")))
 #  define GST_EXPORT extern __attribute__ ((visibility ("default")))
 # else
+#  define GST_PLUGIN_EXPORT
 #  define GST_EXPORT extern
 # endif
+#endif
+
+#ifndef GST_API
+#define GST_API GST_EXPORT
+#endif
+
+/* These macros are used to mark deprecated functions in GStreamer headers,
+ * and thus have to be exposed in installed headers. But please
+ * do *not* use them in other projects. Instead, use G_DEPRECATED
+ * or define your own wrappers around it. */
+#ifndef GST_DISABLE_DEPRECATED
+#define GST_DEPRECATED GST_API
+#define GST_DEPRECATED_FOR(f) GST_API
+#else
+#define GST_DEPRECATED G_DEPRECATED GST_API
+#define GST_DEPRECATED_FOR(f) G_DEPRECATED_FOR(f) GST_API
 #endif
 
 #endif /* __GST_CONFIG_H__ */
