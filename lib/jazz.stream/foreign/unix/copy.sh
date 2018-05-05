@@ -95,6 +95,7 @@ cpshared libz.so 1
 mkdir gstreamer/libexec
 mkdir gstreamer/libexec/gstreamer-1.0
 cp $GSTREAMER/libexec/gstreamer-1.0/gst-plugin-scanner gstreamer/libexec/gstreamer-1.0
+patchelf --set-rpath '$ORIGIN/../../lib' gstreamer/libexec/gstreamer-1.0/gst-plugin-scanner
 
 
 #
