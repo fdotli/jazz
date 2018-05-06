@@ -84,6 +84,7 @@ cpshared liborc-0.4.so 0
 cpshared libpng16.so 16
 cpshared libvorbis.so 0
 cpshared libvorbisenc.so 2
+cpshared libvpx.so 4
 cpshared libx264.so 148
 cpshared libbz2.so 1.0
 cpshared libz.so 1
