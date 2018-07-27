@@ -1,7 +1,6 @@
 #! /bin/sh
 
 GSTREAMER=/Library/Frameworks/GStreamer.framework/Versions/1.0
-GSTREAMERDEVEL=/Library/Frameworks/GStreamerDevel.framework/Versions/1.0
 
 if [ -d gstreamer ]; then
   rm -r gstreamer
@@ -37,6 +36,7 @@ cplib gstreamer-1.0/libgstjpeg.so
 cplib gstreamer-1.0/libgstlibav.so
 cplib gstreamer-1.0/libgstmatroska.so
 cplib gstreamer-1.0/libgstogg.so
+cplib gstreamer-1.0/libgstopus.so
 cplib gstreamer-1.0/libgstosxaudio.so
 cplib gstreamer-1.0/libgstplayback.so
 cplib gstreamer-1.0/libgstsubparse.so
@@ -73,6 +73,7 @@ cplib libgstvideo-1.0.0.dylib
 cplib libintl.8.dylib
 cplib libjpeg.8.dylib
 cplib libogg.0.dylib
+cplib libopus.0.dylib
 cplib liborc-0.4.0.dylib
 cplib libpng16.16.dylib
 cplib libvorbis.0.dylib
@@ -95,6 +96,6 @@ cp $GSTREAMER/libexec/gstreamer-1.0/gst-plugin-scanner gstreamer/libexec/gstream
 #
 
 mkdir gstreamer/include
-cp -r $GSTREAMERDEVEL/include/gstreamer-1.0 gstreamer/include
-cp -r $GSTREAMERDEVEL/include/glib-2.0 gstreamer/include
-cp -r $GSTREAMERDEVEL/lib/glib-2.0 gstreamer/lib
+cp -r $GSTREAMER/include/gstreamer-1.0 gstreamer/include
+cp -r $GSTREAMER/include/glib-2.0 gstreamer/include
+cp -r $GSTREAMER/lib/glib-2.0 gstreamer/lib
