@@ -47,7 +47,6 @@ cplib gstreamer-1.0/libgstvideoparsersbad.so
 cplib gstreamer-1.0/libgstvideoscale.so
 cplib gstreamer-1.0/libgstvideotestsrc.so
 cplib gstreamer-1.0/libgstvolume.so
-cplib gstreamer-1.0/libgstvorbis.so
 cplib gstreamer-1.0/libgstvpx.so
 cplib gstreamer-1.0/libgstwavparse.so
 cplib gstreamer-1.0/libgstx264.so
@@ -76,8 +75,6 @@ cplib libogg.0.dylib
 cplib libopus.0.dylib
 cplib liborc-0.4.0.dylib
 cplib libpng16.16.dylib
-cplib libvorbis.0.dylib
-cplib libvorbisenc.2.dylib
 cplib libx264.148.dylib
 cplib libz.1.dylib
 
