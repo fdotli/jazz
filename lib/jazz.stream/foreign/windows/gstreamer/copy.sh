@@ -48,6 +48,7 @@ cpbundle gstreamer-1.0/libgstjpeg
 cpbundle gstreamer-1.0/libgstlibav
 cpbundle gstreamer-1.0/libgstmatroska
 cpbundle gstreamer-1.0/libgstogg
+cpbundle gstreamer-1.0/libgstopus
 cpbundle gstreamer-1.0/libgstplayback
 cpbundle gstreamer-1.0/libgstsubparse
 cpbundle gstreamer-1.0/libgsttypefindfunctions
@@ -57,7 +58,6 @@ cpbundle gstreamer-1.0/libgstvideoparsersbad
 cpbundle gstreamer-1.0/libgstvideoscale
 cpbundle gstreamer-1.0/libgstvideotestsrc
 cpbundle gstreamer-1.0/libgstvolume
-cpbundle gstreamer-1.0/libgstvorbis
 cpbundle gstreamer-1.0/libgstvpx
 cpbundle gstreamer-1.0/libgstwasapi
 cpbundle gstreamer-1.0/libgstwavparse
@@ -86,10 +86,9 @@ cpshared libgstvideo-1.0-0
 cpshared libintl-8
 cpshared libjpeg-8
 cpshared libogg-0
+cpshared libopus-0
 cpshared liborc-0.4-0
 cpshared libpng16-16
-cpshared libvorbis-0
-cpshared libvorbisenc-2
 cpshared libwinpthread-1
 cpshared libx264-148
 cpshared libz
