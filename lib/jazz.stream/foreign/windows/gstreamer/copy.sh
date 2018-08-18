@@ -1,7 +1,6 @@
 #! /bin/sh
 
-GSTREAMER=/g/gstreamer/1.0/x86
-GSTREAMERDEVEL=/g/gstreamerdevel/1.0/x86
+GSTREAMER=/c/gstreamer/1.0/x86
 
 if [ -d gstreamer ]; then
   rm -r gstreamer
@@ -23,7 +22,7 @@ cpshared() {
 }
 
 cplink() {
-    cp $GSTREAMERDEVEL/lib/$1.a gstreamer/lib/$1.a
+    cp $GSTREAMER/lib/$1.a gstreamer/lib/$1.a
 }
 
 mkdir gstreamer/bin
@@ -58,6 +57,7 @@ cpbundle gstreamer-1.0/libgstvideoparsersbad
 cpbundle gstreamer-1.0/libgstvideoscale
 cpbundle gstreamer-1.0/libgstvideotestsrc
 cpbundle gstreamer-1.0/libgstvolume
+cpbundle gstreamer-1.0/libgstvorbis
 cpbundle gstreamer-1.0/libgstvpx
 cpbundle gstreamer-1.0/libgstwasapi
 cpbundle gstreamer-1.0/libgstwavparse
@@ -89,6 +89,8 @@ cpshared libogg-0
 cpshared libopus-0
 cpshared liborc-0.4-0
 cpshared libpng16-16
+cpshared libvorbis-0
+cpshared libvorbisenc-2
 cpshared libwinpthread-1
 cpshared libx264-148
 cpshared libz
@@ -115,6 +117,6 @@ cp $GSTREAMER/libexec/gstreamer-1.0/gst-plugin-scanner gstreamer/libexec/gstream
 #
 
 mkdir gstreamer/include
-cp -r $GSTREAMERDEVEL/include/gstreamer-1.0 gstreamer/include
-cp -r $GSTREAMERDEVEL/include/glib-2.0 gstreamer/include
-cp -r $GSTREAMERDEVEL/lib/glib-2.0 gstreamer/lib
+cp -r $GSTREAMER/include/gstreamer-1.0 gstreamer/include
+cp -r $GSTREAMER/include/glib-2.0 gstreamer/include
+cp -r $GSTREAMER/lib/glib-2.0 gstreamer/lib
