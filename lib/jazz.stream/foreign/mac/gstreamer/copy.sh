@@ -44,6 +44,7 @@ cplib gstreamer-1.0/libgsttypefindfunctions.so
 cplib gstreamer-1.0/libgstvideoconvert.so
 cplib gstreamer-1.0/libgstvideofilter.so
 cplib gstreamer-1.0/libgstvideoparsersbad.so
+cplib gstreamer-1.0/libgstvideorate.so
 cplib gstreamer-1.0/libgstvideoscale.so
 cplib gstreamer-1.0/libgstvideotestsrc.so
 cplib gstreamer-1.0/libgstvolume.so
