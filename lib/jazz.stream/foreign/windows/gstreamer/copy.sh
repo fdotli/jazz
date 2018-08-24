@@ -54,6 +54,7 @@ cpbundle gstreamer-1.0/libgsttypefindfunctions
 cpbundle gstreamer-1.0/libgstvideoconvert
 cpbundle gstreamer-1.0/libgstvideofilter
 cpbundle gstreamer-1.0/libgstvideoparsersbad
+cpbundle gstreamer-1.0/libgstvideorate
 cpbundle gstreamer-1.0/libgstvideoscale
 cpbundle gstreamer-1.0/libgstvideotestsrc
 cpbundle gstreamer-1.0/libgstvolume
