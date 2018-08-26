@@ -63,6 +63,7 @@ cpbundle gstreamer-1.0/libgstvpx
 cpbundle gstreamer-1.0/libgstwasapi
 cpbundle gstreamer-1.0/libgstwavparse
 cpbundle gstreamer-1.0/libgstwinks
+cpbundle gstreamer-1.0/libgstwinscreencap
 cpbundle gstreamer-1.0/libgstx264
 cpshared libbz2
 cpshared libffi-7
