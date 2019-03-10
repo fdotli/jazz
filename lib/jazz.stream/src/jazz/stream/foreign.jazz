@@ -453,7 +453,12 @@ static int gst_app_sink_try_pull(GstElement* elem, ___SCMOBJ vec, ___SCMOBJ info
             GstSegment* segment = gst_sample_get_segment(sample);
             GstClockTime base_time = gst_element_get_base_time(elem);
             GstClockTime running_time = gst_segment_to_running_time(segment, GST_FORMAT_TIME, pts);
-            pts = base_time + running_time;
+            // pts = base_time + running_time;
+            // pts = running_time;
+            GstClockTime dts;
+            dts = GST_BUFFER_DTS(buffer);
+            // printf("dts %.3f pts %.3f\n", present_time(dts), present_time(pts));
+            pts = dts;
         }
         gst_sample_unref(sample);
         // not completely sure about this hack around audio receiving
@@ -462,6 +467,53 @@ static int gst_app_sink_try_pull(GstElement* elem, ___SCMOBJ vec, ___SCMOBJ info
         // the receiver side for some reason
         info_ptr[0] = (pts == GST_CLOCK_TIME_NONE) ? 0 : pts;
         info_ptr[1] = duration;
+        return size;
+    }
+    else
+        return -1;
+}
+
+static int gst_app_sink_try_pull2(GstElement* elem, ___SCMOBJ vec, ___SCMOBJ info)
+{
+    int size;
+    ___U8 *data = ___CAST(___U8*, ___BODY(vec));
+    ___U64 *info_ptr = ___CAST(___U64*, ___BODY(info));
+    GstSample *sample;
+    sample = gst_app_sink_try_pull_sample(GST_APP_SINK(elem), 0);
+    if (sample)
+    {
+        GstBuffer* buffer = gst_sample_get_buffer(sample);
+        GstClockTime pts, dts, duration;
+        if (buffer)
+        {
+            GstMapInfo map;
+            gst_buffer_map(buffer, &map, GST_MAP_READ);
+            memmove(data, map.data, map.size);
+            size = map.size;
+            gst_buffer_unmap(buffer, &map);
+            
+            pts = GST_BUFFER_PTS(buffer);
+            duration = GST_BUFFER_DURATION(buffer);
+               
+            // return the clock time of buffer instead of pts
+            // as a way of ensuring a monotonic sequence of pts
+            // shielding us from h264 adjusting pts
+            GstSegment* segment = gst_sample_get_segment(sample);
+            GstClockTime base_time = gst_element_get_base_time(elem);
+            GstClockTime running_time = gst_segment_to_running_time(segment, GST_FORMAT_TIME, pts);
+            // pts = base_time + running_time;
+            // pts = running_time;
+            dts = GST_BUFFER_DTS(buffer);
+            // printf("base %.3f, running %.3f, dts %.3f, pts %.3f\n", present_time(base_time), present_time(running_time), present_time(dts), present_time(pts));
+        }
+        gst_sample_unref(sample);
+        // not completely sure about this hack around audio receiving
+        // GST_CLOCK_TIME_NONE PTS in the first two frames. note that
+        // just dropping them by returning -1 makes audio not work at
+        // the receiver side for some reason
+        info_ptr[0] = (dts == GST_CLOCK_TIME_NONE) ? 0 : dts;
+        info_ptr[1] = (pts == GST_CLOCK_TIME_NONE) ? 0 : pts;
+        info_ptr[2] = duration;
         return size;
     }
     else
@@ -479,10 +531,31 @@ static GstFlowReturn gst_app_src_write(GstElement* elem, ___SCMOBJ vec, int size
     GstPipeline* pipeline = (GstPipeline*) GST_ELEMENT_PARENT(elem);
     GstClock* clock = gst_pipeline_get_clock(pipeline);
     GstClockTime base_time = gst_element_get_base_time(elem);
-    GstClockTime abs_time = gst_clock_get_time(clock);
-    GST_BUFFER_PTS(buffer) = abs_time - base_time;
+    GstClockTime clock_time = gst_clock_get_time(clock);
+    GST_BUFFER_PTS(buffer) = clock_time - base_time;
     GST_BUFFER_DTS(buffer) = GST_BUFFER_PTS(buffer);
     GST_BUFFER_DURATION(buffer) = duration;
+    return gst_app_src_push_buffer(GST_APP_SRC(elem), buffer);
+}
+
+static GstFlowReturn gst_app_src_write2(GstElement* elem, ___SCMOBJ vec, int size, ___U64 dts, ___U64 pts, ___U64 duration)
+{
+    ___U8 *ptr = ___CAST(___U8*, ___BODY(vec));
+    GstBuffer *buffer = gst_buffer_new_allocate(NULL, size, NULL);
+    GstMapInfo map;
+    gst_buffer_map(buffer, &map, GST_MAP_WRITE);
+    memmove(map.data, ptr, size);
+    gst_buffer_unmap(buffer, &map);
+    GstPipeline* pipeline = (GstPipeline*) GST_ELEMENT_PARENT(elem);
+    GstClock* clock = gst_pipeline_get_clock(pipeline);
+    GstClockTime base_time = gst_element_get_base_time(elem);
+    GstClockTime clock_time = gst_clock_get_time(clock);
+    // GST_BUFFER_DTS(buffer) = clock_time - base_time;
+    // GST_BUFFER_PTS(buffer) = GST_BUFFER_DTS(buffer) + (pts - dts);
+    GST_BUFFER_DTS(buffer) = dts - 3599999933333333;
+    GST_BUFFER_PTS(buffer) = pts - 3599999933333333 + 200000000;
+    GST_BUFFER_DURATION(buffer) = duration;
+    // printf("write2 dts %.3f, pts %.3f, dts %.3f, pts %.3f\n", present_time(dts), present_time(pts));
     return gst_app_src_push_buffer(GST_APP_SRC(elem), buffer);
 }
 
@@ -496,8 +569,8 @@ static GstFlowReturn gst_app_src_write_pointer(GstElement* elem, void* ptr, int 
     GstPipeline* pipeline = (GstPipeline*) GST_ELEMENT_PARENT(elem);
     GstClock* clock = gst_pipeline_get_clock(pipeline);
     GstClockTime base_time = gst_element_get_base_time(elem);
-    GstClockTime abs_time = gst_clock_get_time(clock);
-    GST_BUFFER_PTS(buffer) = abs_time - base_time;
+    GstClockTime clock_time = gst_clock_get_time(clock);
+    GST_BUFFER_PTS(buffer) = clock_time - base_time;
     GST_BUFFER_DTS(buffer) = GST_BUFFER_PTS(buffer);
     GST_BUFFER_DURATION(buffer) = duration;
     return gst_app_src_push_buffer(GST_APP_SRC(elem), buffer);
@@ -837,9 +910,11 @@ static GThread* create_denoiser_thread(GstElement* sink, GstElement* src)
 (gst-external (gst_app_src_set_caps (call GST_APP_SRC GstElement*) GstCaps*) void)
 (gst-external (gst_app_src_set_stream_type (call GST_APP_SRC GstElement*) GstAppStreamType) void)
 (gst-external (gst_app_src_write GstElement* scheme-object int uint64 uint64) GstFlowReturn)
+(gst-external (gst_app_src_write2 GstElement* scheme-object int uint64 uint64 uint64) GstFlowReturn)
 (gst-external (gst_app_src_write_pointer GstElement* void* int uint64 uint64) GstFlowReturn)
 (gst-external (gst_app_sink_connect_fifo_signals GstElement* int) void)
 (gst-external (gst_app_sink_try_pull GstElement* scheme-object scheme-object) int)
+(gst-external (gst_app_sink_try_pull2 GstElement* scheme-object scheme-object) int)
 (gst-external (gst_app_sink_is_eos (call GST_APP_SINK GstElement*)) bool)
 (gst-external (GST_TYPE_FRACTION) GType "___return(GST_TYPE_FRACTION);")
 (gst-external (GST_MESSAGE_TYPE GstMessage*) GstMessageType)
