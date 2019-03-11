@@ -220,6 +220,7 @@ typedef enum
  * GstH265SEIPayloadType:
  * @GST_H265_SEI_BUF_PERIOD: Buffering Period SEI Message
  * @GST_H265_SEI_PIC_TIMING: Picture Timing SEI Message
+ * @GST_H265_SEI_RECOVERY_POINT: Recovery Point SEI Message (D.3.8)
  * ...
  *
  * The type of SEI message.
@@ -227,7 +228,8 @@ typedef enum
 typedef enum
 {
   GST_H265_SEI_BUF_PERIOD = 0,
-  GST_H265_SEI_PIC_TIMING = 1
+  GST_H265_SEI_PIC_TIMING = 1,
+  GST_H265_SEI_RECOVERY_POINT = 6,
       /* and more...  */
 } GstH265SEIPayloadType;
 
@@ -313,6 +315,7 @@ typedef struct _GstH265SliceHdr                 GstH265SliceHdr;
 
 typedef struct _GstH265PicTiming                GstH265PicTiming;
 typedef struct _GstH265BufferingPeriod          GstH265BufferingPeriod;
+typedef struct _GstH265RecoveryPoint            GstH265RecoveryPoint;
 typedef struct _GstH265SEIMessage               GstH265SEIMessage;
 
 /**
@@ -517,6 +520,8 @@ struct _GstH265HRDParams
 /**
  * GstH265VPS:
  * @id: vps id
+ * @base_layer_internal_flag and @base_layer_available_flag:
+ *   specify availability of base layer
  * @max_layers_minus1: should be zero, but can be other values in future
  * @max_sub_layers_minus1:specifies the maximum number of temporal sub-layers
  * @temporal_id_nesting_flag: specifies whether inter prediction is
@@ -555,6 +560,9 @@ struct _GstH265HRDParams
 struct _GstH265VPS {
   guint8 id;
 
+  guint8 base_layer_internal_flag;
+  guint8 base_layer_available_flag;
+
   guint8 max_layers_minus1;
   guint8 max_sub_layers_minus1;
   guint8 temporal_id_nesting_flag;
@@ -576,9 +584,10 @@ struct _GstH265VPS {
   guint32 num_ticks_poc_diff_one_minus1;
 
   guint16 num_hrd_parameters;
+
+  /* FIXME: following HRD related info should be an array */
   guint16 hrd_layer_set_idx;
   guint8 cprms_present_flag;
-
   GstH265HRDParams hrd_params;
 
   guint8 vps_extension;
@@ -1057,6 +1066,13 @@ struct _GstH265BufferingPeriod
   guint8 vcl_initial_alt_cpb_removal_offset[32];
 };
 
+struct _GstH265RecoveryPoint
+{
+  gint32 recovery_poc_cnt;
+  guint8 exact_match_flag;
+  guint8 broken_link_flag;
+};
+
 struct _GstH265SEIMessage
 {
   GstH265SEIPayloadType payloadType;
@@ -1064,6 +1080,7 @@ struct _GstH265SEIMessage
   union {
     GstH265BufferingPeriod buffering_period;
     GstH265PicTiming pic_timing;
+    GstH265RecoveryPoint recovery_point;
     /* ... could implement more */
   } payload;
 };

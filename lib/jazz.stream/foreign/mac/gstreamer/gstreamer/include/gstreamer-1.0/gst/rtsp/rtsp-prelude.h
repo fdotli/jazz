@@ -24,8 +24,18 @@
 
 #include <gst/gst.h>
 
-#ifndef GST_RTSP_API
-#define GST_RTSP_API GST_EXPORT
+#ifdef BUILDING_GST_RTSP
+#define GST_RTSP_API GST_API_EXPORT         /* from config.h */
+#else
+#define GST_RTSP_API GST_API_IMPORT
+#endif
+
+#ifndef GST_DISABLE_DEPRECATED
+#define GST_RTSP_DEPRECATED GST_RTSP_API
+#define GST_RTSP_DEPRECATED_FOR(f) GST_RTSP_API
+#else
+#define GST_RTSP_DEPRECATED G_DEPRECATED GST_RTSP_API
+#define GST_RTSP_DEPRECATED_FOR(f) G_DEPRECATED_FOR(f) GST_RTSP_API
 #endif
 
 #endif /* __GST_RTSP_PRELUDE_H__ */

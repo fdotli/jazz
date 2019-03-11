@@ -64,10 +64,11 @@ struct _GstAggregatorPad
 {
   GstPad                       parent;
 
+  /*< public >*/
   /* Protected by the OBJECT_LOCK */
   GstSegment segment;
 
-  /* < Private > */
+  /* < private > */
   GstAggregatorPadPrivate   *  priv;
 
   gpointer _gst_reserved[GST_PADDING];
@@ -134,7 +135,6 @@ gboolean    gst_aggregator_pad_is_eos       (GstAggregatorPad *  pad);
 /**
  * GstAggregator:
  * @srcpad: the aggregator's source pad
- * @segment: the output segment
  *
  * Aggregator base class object structure.
  */
@@ -142,6 +142,7 @@ struct _GstAggregator
 {
   GstElement               parent;
 
+  /*< public >*/
   GstPad                *  srcpad;
 
   /*< private >*/
@@ -206,6 +207,10 @@ struct _GstAggregator
  *                  based aggregation to occur. Defaults to returning
  *                  GST_CLOCK_TIME_NONE causing the element to wait for buffers
  *                  on all sink pads before aggregating.
+ * @create_new_pad: Optional.
+ *                  Called when a new pad needs to be created. Allows subclass that
+ *                  don't have a single sink pad template to provide a pad based
+ *                  on the provided information.
  * @update_src_caps: Lets subclasses update the #GstCaps representing
  *                   the src pad caps before usage.  The result should end up
  *                   in @ret. Return %GST_AGGREGATOR_FLOW_NEED_DATA to indicate that the
@@ -223,6 +228,8 @@ struct _GstAggregator
  *                     Setup the allocation parameters for allocating output
  *                     buffers. The passed in query contains the result of the
  *                     downstream allocation query.
+ * @propose_allocation: Optional.
+ *                     Allows the subclass to handle the allocation query from upstream.
  *
  * The aggregator base class will handle in a thread-safe way all manners of
  * concurrent flushes, seeks, pad additions and removals, leaving to the
@@ -279,6 +286,11 @@ struct _GstAggregatorClass {
                                         GstPadTemplate * templ,
                                         const gchar    * req_name,
                                         const GstCaps  * caps);
+
+  /**
+   * GstAggregatorClass::update_src_caps:
+   * @ret: (out) (allow-none):
+   */
   GstFlowReturn     (*update_src_caps) (GstAggregator *  self,
                                         GstCaps       *  caps,
                                         GstCaps       ** ret);
@@ -341,6 +353,15 @@ void            gst_aggregator_get_allocator       (GstAggregator               
                                                     GstAllocator                 ** allocator,
                                                     GstAllocationParams           * params);
 
+GST_BASE_API
+GstClockTime    gst_aggregator_simple_get_next_time (GstAggregator                * self);
+
+
 G_END_DECLS
+
+#ifdef G_DEFINE_AUTOPTR_CLEANUP_FUNC
+G_DEFINE_AUTOPTR_CLEANUP_FUNC(GstAggregator, gst_object_unref)
+G_DEFINE_AUTOPTR_CLEANUP_FUNC(GstAggregatorPad, gst_object_unref)
+#endif
 
 #endif /* __GST_AGGREGATOR_H__ */

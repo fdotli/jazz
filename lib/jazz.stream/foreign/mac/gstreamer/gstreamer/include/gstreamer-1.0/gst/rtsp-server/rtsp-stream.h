@@ -234,6 +234,16 @@ GSocket *         gst_rtsp_stream_get_rtcp_multicast_socket (GstRTSPStream *stre
                                                              GSocketFamily family);
 
 GST_RTSP_SERVER_API
+gboolean          gst_rtsp_stream_add_multicast_client_address (GstRTSPStream * stream,
+                                                                const gchar * destination,
+                                                                guint rtp_port,
+                                                                guint rtcp_port,
+                                                                GSocketFamily family);
+
+GST_RTSP_SERVER_API
+gchar *           gst_rtsp_stream_get_multicast_client_addresses (GstRTSPStream * stream);
+
+GST_RTSP_SERVER_API
 gboolean          gst_rtsp_stream_update_crypto    (GstRTSPStream * stream,
                                                     guint ssrc, GstCaps * crypto);
 
@@ -280,6 +290,9 @@ GST_RTSP_SERVER_API
 GstElement *      gst_rtsp_stream_request_aux_sender         (GstRTSPStream * stream, guint sessid);
 
 GST_RTSP_SERVER_API
+GstElement *      gst_rtsp_stream_request_aux_receiver       (GstRTSPStream * stream, guint sessid);
+
+GST_RTSP_SERVER_API
 gboolean          gst_rtsp_stream_allocate_udp_sockets       (GstRTSPStream * stream, GSocketFamily family,
                                                               GstRTSPTransport *transport, gboolean use_client_settings);
 
@@ -288,6 +301,21 @@ void                    gst_rtsp_stream_set_publish_clock_mode (GstRTSPStream * 
 
 GST_RTSP_SERVER_API
 GstRTSPPublishClockMode gst_rtsp_stream_get_publish_clock_mode (GstRTSPStream * stream);
+
+GST_RTSP_SERVER_API
+gboolean                gst_rtsp_stream_set_max_mcast_ttl  (GstRTSPStream *stream, guint ttl);
+
+GST_RTSP_SERVER_API
+guint             gst_rtsp_stream_get_max_mcast_ttl  (GstRTSPStream *stream);
+
+GST_RTSP_SERVER_API
+gboolean          gst_rtsp_stream_verify_mcast_ttl  (GstRTSPStream *stream, guint ttl);
+
+GST_RTSP_SERVER_API
+void              gst_rtsp_stream_set_bind_mcast_address  (GstRTSPStream * stream, gboolean bind_mcast_addr);
+
+GST_RTSP_SERVER_API
+gboolean          gst_rtsp_stream_is_bind_mcast_address (GstRTSPStream * stream);
 
 GST_RTSP_SERVER_API
 gboolean          gst_rtsp_stream_complete_stream (GstRTSPStream * stream, const GstRTSPTransport * transport);
@@ -300,6 +328,31 @@ gboolean           gst_rtsp_stream_is_sender (GstRTSPStream * stream);
 
 GST_RTSP_SERVER_API
 gboolean           gst_rtsp_stream_is_receiver (GstRTSPStream * stream);
+
+GST_RTSP_SERVER_API
+gboolean           gst_rtsp_stream_handle_keymgmt (GstRTSPStream *stream, const gchar *keymgmt);
+
+/* ULP Forward Error Correction (RFC 5109) */
+GST_RTSP_SERVER_API
+gboolean           gst_rtsp_stream_get_ulpfec_enabled (GstRTSPStream *stream);
+
+GST_RTSP_SERVER_API
+void               gst_rtsp_stream_set_ulpfec_pt (GstRTSPStream *stream, guint pt);
+
+GST_RTSP_SERVER_API
+guint              gst_rtsp_stream_get_ulpfec_pt (GstRTSPStream *stream);
+
+GST_RTSP_SERVER_API
+GstElement *       gst_rtsp_stream_request_ulpfec_decoder (GstRTSPStream *stream, GstElement *rtpbin, guint sessid);
+
+GST_RTSP_SERVER_API
+GstElement *       gst_rtsp_stream_request_ulpfec_encoder (GstRTSPStream *stream, guint sessid);
+
+GST_RTSP_SERVER_API
+void               gst_rtsp_stream_set_ulpfec_percentage (GstRTSPStream *stream, guint percentage);
+
+GST_RTSP_SERVER_API
+guint              gst_rtsp_stream_get_ulpfec_percentage (GstRTSPStream *stream);
 
 /**
  * GstRTSPStreamTransportFilterFunc:

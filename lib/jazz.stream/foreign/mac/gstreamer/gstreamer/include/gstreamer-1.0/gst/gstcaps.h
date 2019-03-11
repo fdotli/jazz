@@ -223,27 +223,30 @@ gst_caps_unref (GstCaps * caps)
   gst_mini_object_unref (GST_MINI_OBJECT_CAST (caps));
 }
 
-/* copy caps */
 /**
- * gst_caps_copy:
- * @caps: a #GstCaps.
+ * gst_clear_caps: (skip)
+ * @caps_ptr: a pointer to a #GstCaps reference
  *
- * Creates a new #GstCaps as a copy of the old @caps. The new caps will have a
- * refcount of 1, owned by the caller. The structures are copied as well.
+ * Clears a reference to a #GstCaps.
  *
- * Note that this function is the semantic equivalent of a gst_caps_ref()
- * followed by a gst_caps_make_writable(). If you only want to hold on to a
- * reference to the data, you should use gst_caps_ref().
+ * @caps_ptr must not be %NULL.
  *
- * When you are finished with the caps, call gst_caps_unref() on it.
+ * If the reference is %NULL then this function does nothing. Otherwise, the
+ * reference count of the caps is decreased and the pointer is set to %NULL.
  *
- * Returns: the new #GstCaps
+ * Since: 1.16
  */
-static inline GstCaps *
-gst_caps_copy (const GstCaps * caps)
+static inline void
+gst_clear_caps (GstCaps ** caps_ptr)
 {
-  return GST_CAPS (gst_mini_object_copy (GST_MINI_OBJECT_CAST (caps)));
+  gst_clear_mini_object ((GstMiniObject **) caps_ptr);
 }
+
+/* copy caps */
+GST_API
+GstCaps * gst_caps_copy (const GstCaps * caps);
+
+#define gst_caps_copy(caps) GST_CAPS (gst_mini_object_copy (GST_MINI_OBJECT_CAST (caps)))
 
 /**
  * gst_caps_is_writable:
@@ -466,6 +469,10 @@ GST_API
 void              gst_caps_set_features            (GstCaps *caps,
                                                     guint          index,
                                                     GstCapsFeatures * features);
+GST_API
+void              gst_caps_set_features_simple        (GstCaps *caps,
+                                                       GstCapsFeatures * features);
+
 GST_API
 GstCapsFeatures * gst_caps_get_features            (const GstCaps *caps,
                                                     guint          index);
