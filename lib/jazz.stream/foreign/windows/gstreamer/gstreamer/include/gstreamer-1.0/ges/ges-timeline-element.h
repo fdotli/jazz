@@ -195,10 +195,12 @@ struct _GESTimelineElementClass
   gboolean (*lookup_child)                 (GESTimelineElement *self, const gchar *prop_name,
                                             GObject **child, GParamSpec **pspec);
   GESTrackType (*get_track_types)          (GESTimelineElement * self);
+  void         (*set_child_property)       (GESTimelineElement * self, GObject *child,
+                                            GParamSpec *pspec, GValue *value);
 
   /*< private > */
   /* Padding for API extension */
-  gpointer _ges_reserved[GES_PADDING_LARGE - 2];
+  gpointer _ges_reserved[GES_PADDING_LARGE - 3];
 };
 
 GES_API
@@ -213,15 +215,15 @@ gboolean ges_timeline_element_set_parent             (GESTimelineElement *self, 
 GES_API
 gboolean ges_timeline_element_set_timeline           (GESTimelineElement *self, GESTimeline *timeline);
 GES_API
-void ges_timeline_element_set_start                  (GESTimelineElement *self, GstClockTime start);
+gboolean ges_timeline_element_set_start              (GESTimelineElement *self, GstClockTime start);
 GES_API
-void ges_timeline_element_set_inpoint                (GESTimelineElement *self, GstClockTime inpoint);
+gboolean ges_timeline_element_set_inpoint            (GESTimelineElement *self, GstClockTime inpoint);
 GES_API
-void ges_timeline_element_set_duration               (GESTimelineElement *self, GstClockTime duration);
+gboolean ges_timeline_element_set_duration           (GESTimelineElement *self, GstClockTime duration);
 GES_API
-void ges_timeline_element_set_max_duration           (GESTimelineElement *self, GstClockTime maxduration);
+gboolean ges_timeline_element_set_max_duration       (GESTimelineElement *self, GstClockTime maxduration);
 GES_API
-void ges_timeline_element_set_priority               (GESTimelineElement *self, guint32 priority);
+gboolean ges_timeline_element_set_priority           (GESTimelineElement *self, guint32 priority);
 
 GES_API
 GstClockTime ges_timeline_element_get_start          (GESTimelineElement *self);
@@ -285,7 +287,7 @@ ges_timeline_element_set_child_property_valist      (GESTimelineElement * self,
 GES_API void
 ges_timeline_element_set_child_property_by_pspec    (GESTimelineElement * self,
                                                      GParamSpec * pspec,
-                                                     GValue * value);
+                                                     const GValue * value);
 GES_API
 void ges_timeline_element_set_child_properties     (GESTimelineElement * self,
                                                      const gchar * first_property_name,
@@ -294,7 +296,7 @@ void ges_timeline_element_set_child_properties     (GESTimelineElement * self,
 GES_API
 gboolean ges_timeline_element_set_child_property   (GESTimelineElement *self,
                                                     const gchar *property_name,
-                                                    GValue * value);
+                                                    const GValue * value);
 
 GES_API
 gboolean ges_timeline_element_get_child_property   (GESTimelineElement *self,

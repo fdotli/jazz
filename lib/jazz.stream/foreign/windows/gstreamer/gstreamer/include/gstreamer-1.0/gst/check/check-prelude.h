@@ -1,7 +1,7 @@
-/* GStreamer Video Library
+/* GStreamer Check Library
  * Copyright (C) 2018 GStreamer developers
  *
- * video-prelude.h: prelude include header for gst-video library
+ * check-prelude.h: prelude include header for gst-check library
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Library General Public
@@ -19,13 +19,25 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#ifndef __GST_VIDEO_BAD_PRELUDE_H__
-#define __GST_VIDEO_BAD_PRELUDE_H__
+#ifndef __GST_CHECK_PRELUDE_H__
+#define __GST_CHECK_PRELUDE_H__
 
 #include <gst/gst.h>
 
-#ifndef GST_VIDEO_BAD_API
-#define GST_VIDEO_BAD_API GST_EXPORT
+#ifndef GST_CHECK_API
+#ifdef BUILDING_GST_CHECK
+#define GST_CHECK_API GST_API_EXPORT        /* from config.h */
+#else
+#define GST_CHECK_API GST_API_IMPORT
+#endif
 #endif
 
-#endif /* __GST_VIDEO_BAD_PRELUDE_H__ */
+#ifndef GST_DISABLE_DEPRECATED
+#define GST_CHECK_DEPRECATED GST_CHECK_API
+#define GST_CHECK_DEPRECATED_FOR(f) GST_CHECK_API
+#else
+#define GST_CHECK_DEPRECATED G_DEPRECATED GST_CHECK_API
+#define GST_CHECK_DEPRECATED_FOR(f) G_DEPRECATED_FOR(f) GST_CHECK_API
+#endif
+
+#endif /* __GST_CHECK_PRELUDE_H__ */

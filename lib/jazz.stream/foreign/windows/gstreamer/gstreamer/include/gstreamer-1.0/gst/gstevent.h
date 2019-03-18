@@ -252,6 +252,7 @@ GST_API GType _gst_event_type;
  * Get the #GstClockTime timestamp of the event. This is the time when the event
  * was created.
  */
+/* FIXME 2.0: Remove the GstEvent::timestamp field */
 #define GST_EVENT_TIMESTAMP(event)      (GST_EVENT_CAST(event)->timestamp)
 
 /**
@@ -406,6 +407,7 @@ struct _GstEvent {
 
   /*< public >*/ /* with COW */
   GstEventType  type;
+  /* FIXME 2.0: Remove the GstEvent::timestamp field */
   guint64       timestamp;
   guint32       seqnum;
 };
@@ -446,6 +448,25 @@ static inline void
 gst_event_unref (GstEvent * event)
 {
   gst_mini_object_unref (GST_MINI_OBJECT_CAST (event));
+}
+
+/**
+ * gst_clear_event: (skip)
+ * @event_ptr: a pointer to a #GstEvent reference
+ *
+ * Clears a reference to a #GstEvent.
+ *
+ * @event_ptr must not be %NULL.
+ *
+ * If the reference is %NULL then this function does nothing. Otherwise, the
+ * reference count of the event is decreased and the pointer is set to %NULL.
+ *
+ * Since: 1.16
+ */
+static inline void
+gst_clear_event (GstEvent ** event_ptr)
+{
+  gst_clear_mini_object ((GstMiniObject **) event_ptr);
 }
 
 /* copy event */

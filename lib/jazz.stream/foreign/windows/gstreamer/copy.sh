@@ -95,7 +95,7 @@ cpshared libvorbis-0
 cpshared libvorbisenc-2
 cpshared libwinpthread-1
 cpshared libx264-148
-cpshared libz
+cpshared libz-1
 cplink libgstapp-1.0.dll
 cplink libgstbase-1.0.dll
 cplink libgstpbutils-1.0.dll

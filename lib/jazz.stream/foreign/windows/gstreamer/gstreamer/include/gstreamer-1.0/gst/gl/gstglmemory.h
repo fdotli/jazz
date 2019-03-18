@@ -53,14 +53,14 @@ GType gst_gl_memory_allocator_get_type(void);
 #define GST_GL_MEMORY_VIDEO_FORMATS_STR \
     "{ RGBA, BGRA, RGBx, BGRx, ARGB, ABGR, xRGB, xBGR, RGB, BGR, RGB16, BGR16, " \
     "AYUV, I420, YV12, NV12, NV21, YUY2, UYVY, Y41B, Y42B, Y444, " \
-    "GRAY8, GRAY16_LE, GRAY16_BE }"
+    "GRAY8, GRAY16_LE, GRAY16_BE, ARGB64 }"
 
 /**
  * GstGLMemory:
  * @mem: the parent #GstGLBaseMemory object
  * @tex_id: the GL texture id for this memory
  * @tex_target: the GL texture target for this memory
- * @tex_type: the texture type
+ * @tex_format: the texture type
  * @info: the texture's #GstVideoInfo
  * @valign: data alignment for system memory mapping
  * @plane: data plane in @info

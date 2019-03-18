@@ -65,7 +65,10 @@ struct _GESUriClipAssetClass
   GstDiscoverer *discoverer;
   GstDiscoverer *sync_discoverer;
 
-  gpointer _ges_reserved[GES_PADDING];
+  void (*discovered) (GstDiscoverer * discoverer, GstDiscovererInfo * info,
+                     GError * err, gpointer user_data);
+
+  gpointer _ges_reserved[GES_PADDING -1];
 };
 
 GES_API
@@ -79,6 +82,8 @@ void ges_uri_clip_asset_new                         (const gchar *uri,
                                                      GCancellable *cancellable,
                                                      GAsyncReadyCallback callback,
                                                      gpointer user_data);
+GES_API
+GESUriClipAsset * ges_uri_clip_asset_finish (GAsyncResult * res, GError ** error);
 GES_API
 GESUriClipAsset* ges_uri_clip_asset_request_sync    (const gchar *uri, GError **error);
 GES_API

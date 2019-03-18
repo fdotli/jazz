@@ -210,6 +210,17 @@ typedef guint64 GstElementFactoryListType;
 #define GST_ELEMENT_FACTORY_KLASS_MEDIA_SUBTITLE        "Subtitle"
 #define GST_ELEMENT_FACTORY_KLASS_MEDIA_METADATA        "Metadata"
 
+/**
+ * GST_ELEMENT_FACTORY_KLASS_HARDWARE:
+ *
+ * Elements interacting with hardware devices should specify this classifier in
+ * their metadata. You may need to put the element in "READY" state to test if
+ * the hardware is present in the system.
+ *
+ * Since: 1.16
+ */
+#define GST_ELEMENT_FACTORY_KLASS_HARDWARE              "Hardware"
+
 GST_API
 gboolean      gst_element_factory_list_is_type      (GstElementFactory *factory,
                                                      GstElementFactoryListType type);

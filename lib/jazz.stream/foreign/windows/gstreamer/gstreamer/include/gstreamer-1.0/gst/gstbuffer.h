@@ -297,6 +297,8 @@ GstBuffer * gst_buffer_new_wrapped_full    (GstMemoryFlags flags, gpointer data,
                                             GDestroyNotify notify);
 GST_API
 GstBuffer * gst_buffer_new_wrapped         (gpointer data, gsize size);
+GST_API
+GstBuffer * gst_buffer_new_wrapped_bytes   (GBytes * bytes);
 
 /* memory blocks */
 
@@ -440,6 +442,25 @@ static inline void
 gst_buffer_unref (GstBuffer * buf)
 {
   gst_mini_object_unref (GST_MINI_OBJECT_CAST (buf));
+}
+
+/**
+ * gst_clear_buffer: (skip)
+ * @buf_ptr: a pointer to a #GstBuffer reference
+ *
+ * Clears a reference to a #GstBuffer.
+ *
+ * @buf_ptr must not be %NULL.
+ *
+ * If the reference is %NULL then this function does nothing. Otherwise, the
+ * reference count of the buffer is decreased and the pointer is set to %NULL.
+ *
+ * Since: 1.16
+ */
+static inline void
+gst_clear_buffer (GstBuffer ** buf_ptr)
+{
+  gst_clear_mini_object ((GstMiniObject **) buf_ptr);
 }
 
 /* copy buffer */
