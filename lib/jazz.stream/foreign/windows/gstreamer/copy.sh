@@ -65,6 +65,10 @@ cpbundle gstreamer-1.0/libgstwavparse
 cpbundle gstreamer-1.0/libgstwinks
 cpbundle gstreamer-1.0/libgstwinscreencap
 cpbundle gstreamer-1.0/libgstx264
+cpshared avcodec-58
+cpshared avfilter-7
+cpshared avformat-58
+cpshared avutil-56
 cpshared libbz2
 cpshared libffi-7
 cpshared libgio-2.0-0
@@ -96,6 +100,7 @@ cpshared libvorbisenc-2
 cpshared libwinpthread-1
 cpshared libx264-148
 cpshared libz-1
+cpshared swresample-3
 cplink libgstapp-1.0.dll
 cplink libgstbase-1.0.dll
 cplink libgstpbutils-1.0.dll
