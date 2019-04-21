@@ -49,7 +49,6 @@ cplib gstreamer-1.0/libgstvideoscale.dylib
 cplib gstreamer-1.0/libgstvideotestsrc.dylib
 cplib gstreamer-1.0/libgstvolume.dylib
 cplib gstreamer-1.0/libgstvorbis.dylib
-cplib gstreamer-1.0/libgstvpx.dylib
 cplib gstreamer-1.0/libgstwavparse.dylib
 cplib gstreamer-1.0/libgstx264.dylib
 cplib libavcodec.58.dylib
