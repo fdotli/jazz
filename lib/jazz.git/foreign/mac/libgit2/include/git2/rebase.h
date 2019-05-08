@@ -11,6 +11,8 @@
 #include "types.h"
 #include "oid.h"
 #include "annotated_commit.h"
+#include "merge.h"
+#include "checkout.h"
 
 /**
  * @file git2/rebase.h
@@ -39,9 +41,18 @@ typedef struct {
 	int quiet;
 
 	/**
+	 * Used by `git_rebase_init`, this will begin an in-memory rebase,
+	 * which will allow callers to step through the rebase operations and
+	 * commit the rebased changes, but will not rewind HEAD or update the
+	 * repository to be in a rebasing state.  This will not interfere with
+	 * the working directory (if there is one).
+	 */
+	int inmemory;
+
+	/**
 	 * Used by `git_rebase_finish`, this is the name of the notes reference
 	 * used to rewrite notes for rebased commits when finishing the rebase;
-	 * if NULL, the contents of the coniguration option `notes.rewriteRef`
+	 * if NULL, the contents of the configuration option `notes.rewriteRef`
 	 * is examined, unless the configuration option `notes.rewrite.rebase`
 	 * is set to false.  If `notes.rewriteRef` is also NULL, notes will
 	 * not be rewritten.
@@ -49,8 +60,13 @@ typedef struct {
 	const char *rewrite_notes_ref;
 
 	/**
+	 * Options to control how trees are merged during `git_rebase_next`.
+	 */
+	git_merge_options merge_options;
+
+	/**
 	 * Options to control how files are written during `git_rebase_init`,
-	 * `git_checkout_next` and `git_checkout_abort`.  Note that a minimum
+	 * `git_rebase_next` and `git_rebase_abort`.  Note that a minimum
 	 * strategy of `GIT_CHECKOUT_SAFE` is defaulted in `init` and `next`,
 	 * and a minimum strategy of `GIT_CHECKOUT_FORCE` is defaulted in
 	 * `abort` to match git semantics.
@@ -101,7 +117,8 @@ typedef enum {
 
 #define GIT_REBASE_OPTIONS_VERSION 1
 #define GIT_REBASE_OPTIONS_INIT \
-	{GIT_REBASE_OPTIONS_VERSION, 0, NULL, GIT_CHECKOUT_OPTIONS_INIT}
+	{ GIT_REBASE_OPTIONS_VERSION, 0, 0, NULL, GIT_MERGE_OPTIONS_INIT, \
+	  GIT_CHECKOUT_OPTIONS_INIT}
 
 /** Indicates that a rebase operation is not (yet) in progress. */
 #define GIT_REBASE_NO_OPERATION SIZE_MAX
@@ -130,12 +147,13 @@ typedef struct {
 } git_rebase_operation;
 
 /**
- * Initializes a `git_rebase_options` with default values. Equivalent to
- * creating an instance with GIT_REBASE_OPTIONS_INIT.
+ * Initialize git_rebase_options structure
  *
- * @param opts the `git_rebase_options` instance to initialize.
- * @param version the version of the struct; you should pass
- *        `GIT_REBASE_OPTIONS_VERSION` here.
+ * Initializes a `git_rebase_options` with default values. Equivalent to
+ * creating an instance with `GIT_REBASE_OPTIONS_INIT`.
+ *
+ * @param opts The `git_rebase_options` struct to initialize.
+ * @param version The struct version; pass `GIT_REBASE_OPTIONS_VERSION`.
  * @return Zero on success; -1 on failure.
  */
 GIT_EXTERN(int) git_rebase_init_options(
@@ -224,6 +242,21 @@ GIT_EXTERN(git_rebase_operation *) git_rebase_operation_byindex(
  */
 GIT_EXTERN(int) git_rebase_next(
 	git_rebase_operation **operation,
+	git_rebase *rebase);
+
+/**
+ * Gets the index produced by the last operation, which is the result
+ * of `git_rebase_next` and which will be committed by the next
+ * invocation of `git_rebase_commit`.  This is useful for resolving
+ * conflicts in an in-memory rebase before committing them.  You must
+ * call `git_index_free` when you are finished with this.
+ *
+ * This is only applicable for in-memory rebases; for rebases within
+ * a working directory, the changes were applied to the repository's
+ * index.
+ */
+GIT_EXTERN(int) git_rebase_inmemory_index(
+	git_index **index,
 	git_rebase *rebase);
 
 /**

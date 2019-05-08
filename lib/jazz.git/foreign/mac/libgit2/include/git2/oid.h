@@ -50,17 +50,16 @@ GIT_EXTERN(int) git_oid_fromstr(git_oid *out, const char *str);
  * Parse a hex formatted null-terminated string into a git_oid.
  *
  * @param out oid structure the result is written into.
- * @param str input hex string; must be at least 4 characters
- *      long and null-terminated.
+ * @param str input hex string; must be null-terminated.
  * @return 0 or an error code
  */
 GIT_EXTERN(int) git_oid_fromstrp(git_oid *out, const char *str);
 
 /**
- * Parse N characters of a hex formatted object id into a git_oid
+ * Parse N characters of a hex formatted object id into a git_oid.
  *
- * If N is odd, N-1 characters will be parsed instead.
- * The remaining space in the git_oid will be set to zero.
+ * If N is odd, the last byte's high nibble will be read in and the
+ * low nibble set to zero.
  *
  * @param out oid structure the result is written into.
  * @param str input hex string of at least size `length`
@@ -247,7 +246,7 @@ GIT_EXTERN(git_oid_shorten *) git_oid_shorten_new(size_t min_length);
  * memory-efficient.
  *
  * Attempting to add more than those OIDs will result in a
- * GITERR_INVALID error
+ * GIT_ERROR_INVALID error
  *
  * @param os a `git_oid_shorten` instance
  * @param text_id an OID in text form

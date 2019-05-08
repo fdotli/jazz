@@ -67,7 +67,7 @@ GIT_BEGIN_DECL
  * To emulate `git checkout -f`, use `GIT_CHECKOUT_FORCE`.
  *
  *
- * There are some additional flags to modified the behavior of checkout:
+ * There are some additional flags to modify the behavior of checkout:
  *
  * - GIT_CHECKOUT_ALLOW_CONFLICTS makes SAFE mode apply safe file updates
  *   even if there are conflicts (instead of cancelling the checkout).
@@ -220,7 +220,7 @@ typedef struct {
 } git_checkout_perfdata;
 
 /** Checkout notification callback function */
-typedef int (*git_checkout_notify_cb)(
+typedef int GIT_CALLBACK(git_checkout_notify_cb)(
 	git_checkout_notify_t why,
 	const char *path,
 	const git_diff_file *baseline,
@@ -229,29 +229,28 @@ typedef int (*git_checkout_notify_cb)(
 	void *payload);
 
 /** Checkout progress notification function */
-typedef void (*git_checkout_progress_cb)(
+typedef void GIT_CALLBACK(git_checkout_progress_cb)(
 	const char *path,
 	size_t completed_steps,
 	size_t total_steps,
 	void *payload);
 
 /** Checkout perfdata notification function */
-typedef void (*git_checkout_perfdata_cb)(
+typedef void GIT_CALLBACK(git_checkout_perfdata_cb)(
 	const git_checkout_perfdata *perfdata,
 	void *payload);
 
 /**
  * Checkout options structure
  *
- * Zero out for defaults.  Initialize with `GIT_CHECKOUT_OPTIONS_INIT` macro to
- * correctly set the `version` field.  E.g.
+ * Initialize with `GIT_CHECKOUT_OPTIONS_INIT`. Alternatively, you can
+ * use `git_checkout_init_options`.
  *
- *		git_checkout_options opts = GIT_CHECKOUT_OPTIONS_INIT;
  */
 typedef struct git_checkout_options {
 	unsigned int version;
 
-	unsigned int checkout_strategy; /**< default will be a dry run */
+	unsigned int checkout_strategy; /**< default will be a safe checkout */
 
 	int disable_filters;    /**< don't apply filters like CRLF conversion */
 	unsigned int dir_mode;  /**< default is 0755 */
@@ -272,7 +271,16 @@ typedef struct git_checkout_options {
 	 */
 	git_strarray paths;
 
-	git_tree *baseline; /**< expected content of workdir, defaults to HEAD */
+	/** The expected content of the working directory; defaults to HEAD.
+	 *  If the working directory does not match this baseline information,
+	 *  that will produce a checkout conflict.
+	 */
+	git_tree *baseline;
+
+	/** Like `baseline` above, though expressed as an index.  This
+	 *  option overrides `baseline`.
+	 */
+	git_index *baseline_index; /**< expected content of workdir, expressed as an index. */
 
 	const char *target_directory; /**< alternative checkout path to workdir */
 
@@ -286,16 +294,18 @@ typedef struct git_checkout_options {
 } git_checkout_options;
 
 #define GIT_CHECKOUT_OPTIONS_VERSION 1
-#define GIT_CHECKOUT_OPTIONS_INIT {GIT_CHECKOUT_OPTIONS_VERSION}
+#define GIT_CHECKOUT_OPTIONS_INIT {GIT_CHECKOUT_OPTIONS_VERSION, GIT_CHECKOUT_SAFE}
 
 /**
-* Initializes a `git_checkout_options` with default values. Equivalent to
-* creating an instance with GIT_CHECKOUT_OPTIONS_INIT.
-*
-* @param opts the `git_checkout_options` struct to initialize.
-* @param version Version of struct; pass `GIT_CHECKOUT_OPTIONS_VERSION`
-* @return Zero on success; -1 on failure.
-*/
+ * Initialize git_checkout_options structure
+ *
+ * Initializes a `git_checkout_options` with default values. Equivalent to creating
+ * an instance with GIT_CHECKOUT_OPTIONS_INIT.
+ *
+ * @param opts The `git_checkout_options` struct to initialize.
+ * @param version The struct version; pass `GIT_CHECKOUT_OPTIONS_VERSION`.
+ * @return Zero on success; -1 on failure.
+ */
 GIT_EXTERN(int) git_checkout_init_options(
 	git_checkout_options *opts,
 	unsigned int version);
@@ -304,11 +314,18 @@ GIT_EXTERN(int) git_checkout_init_options(
  * Updates files in the index and the working tree to match the content of
  * the commit pointed at by HEAD.
  *
+ * Note that this is _not_ the correct mechanism used to switch branches;
+ * do not change your `HEAD` and then call this method, that would leave
+ * you with checkout conflicts since your working directory would then
+ * appear to be dirty.  Instead, checkout the target of the branch and
+ * then update `HEAD` using `git_repository_set_head` to point to the
+ * branch you checked out.
+ *
  * @param repo repository to check out (must be non-bare)
  * @param opts specifies checkout options (may be NULL)
  * @return 0 on success, GIT_EUNBORNBRANCH if HEAD points to a non
  *         existing branch, non-zero value returned by `notify_cb`, or
- *         other error code < 0 (use giterr_last for error details)
+ *         other error code < 0 (use git_error_last for error details)
  */
 GIT_EXTERN(int) git_checkout_head(
 	git_repository *repo,
@@ -321,7 +338,7 @@ GIT_EXTERN(int) git_checkout_head(
  * @param index index to be checked out (or NULL to use repository index)
  * @param opts specifies checkout options (may be NULL)
  * @return 0 on success, non-zero return value from `notify_cb`, or error
- *         code < 0 (use giterr_last for error details)
+ *         code < 0 (use git_error_last for error details)
  */
 GIT_EXTERN(int) git_checkout_index(
 	git_repository *repo,
@@ -337,7 +354,7 @@ GIT_EXTERN(int) git_checkout_index(
  * the working directory (or NULL to use HEAD)
  * @param opts specifies checkout options (may be NULL)
  * @return 0 on success, non-zero return value from `notify_cb`, or error
- *         code < 0 (use giterr_last for error details)
+ *         code < 0 (use git_error_last for error details)
  */
 GIT_EXTERN(int) git_checkout_tree(
 	git_repository *repo,
