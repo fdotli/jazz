@@ -102,7 +102,7 @@ GIT_EXTERN(const git_oid *) git_tag_target_id(const git_tag *tag);
  * @param tag a previously loaded tag.
  * @return type of the tagged object
  */
-GIT_EXTERN(git_otype) git_tag_target_type(const git_tag *tag);
+GIT_EXTERN(git_object_t) git_tag_target_type(const git_tag *tag);
 
 /**
  * Get the name of a tag
@@ -318,7 +318,7 @@ GIT_EXTERN(int) git_tag_list_match(
 	git_repository *repo);
 
 
-typedef int (*git_tag_foreach_cb)(const char *name, git_oid *oid, void *payload);
+typedef int GIT_CALLBACK(git_tag_foreach_cb)(const char *name, git_oid *oid, void *payload);
 
 /**
  * Call callback `cb' for each tag in the repository
@@ -346,6 +346,15 @@ GIT_EXTERN(int) git_tag_foreach(
 GIT_EXTERN(int) git_tag_peel(
 	git_object **tag_target_out,
 	const git_tag *tag);
+
+/**
+ * Create an in-memory copy of a tag. The copy must be explicitly
+ * free'd or it will leak.
+ *
+ * @param out Pointer to store the copy of the tag
+ * @param source Original tag to copy
+ */
+GIT_EXTERN(int) git_tag_dup(git_tag **out, git_tag *source);
 
 /** @} */
 GIT_END_DECL

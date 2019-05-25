@@ -20,6 +20,9 @@
  */
 GIT_BEGIN_DECL
 
+/** Signature of a function which creates a transport */
+typedef int GIT_CALLBACK(git_transport_cb)(git_transport **out, git_remote *owner, void *param);
+
 /**
  * Type of SSH host fingerprint
  */
@@ -34,39 +37,32 @@ typedef enum {
  * Hostkey information taken from libssh2
  */
 typedef struct {
+	git_cert parent;
+
 	/**
-	 * Type of certificate. Here to share the header with
-	 * `git_cert`.
+	 * A hostkey type from libssh2, either
+	 * `GIT_CERT_SSH_MD5` or `GIT_CERT_SSH_SHA1`
 	 */
-	git_cert_t cert_type;
-        /**
-         * A hostkey type from libssh2, either
-         * `GIT_CERT_SSH_MD5` or `GIT_CERT_SSH_SHA1`
-         */
 	git_cert_ssh_t type;
 
-        /**
-         * Hostkey hash. If type has `GIT_CERT_SSH_MD5` set, this will
-         * have the MD5 hash of the hostkey.
-         */
+	/**
+	 * Hostkey hash. If type has `GIT_CERT_SSH_MD5` set, this will
+	 * have the MD5 hash of the hostkey.
+	 */
 	unsigned char hash_md5[16];
 
-        /**
-         * Hostkey hash. If type has `GIT_CERT_SSH_SHA1` set, this will
-         * have the SHA-1 hash of the hostkey.
-         */
-        unsigned char hash_sha1[20];
+	/**
+	 * Hostkey hash. If type has `GIT_CERT_SSH_SHA1` set, this will
+	 * have the SHA-1 hash of the hostkey.
+	 */
+	unsigned char hash_sha1[20];
 } git_cert_hostkey;
 
 /**
  * X.509 certificate information
  */
 typedef struct {
-	/**
-	 * Type of certificate. Here to share the header with
-	 * `git_cert`.
-	 */
-	git_cert_t cert_type;
+	git_cert parent;
 	/**
 	 * Pointer to the X.509 certificate data
 	 */
@@ -81,38 +77,74 @@ typedef struct {
  *** Begin interface for credentials acquisition ***
  */
 
-/** Authentication type requested */
+/**
+ * Supported credential types
+ *
+ * This represents the various types of authentication methods supported by
+ * the library.
+ */
 typedef enum {
-	/* git_cred_userpass_plaintext */
+	/**
+	 * A vanilla user/password request
+	 * @see git_cred_userpass_plaintext_new
+	 */
 	GIT_CREDTYPE_USERPASS_PLAINTEXT = (1u << 0),
 
-	/* git_cred_ssh_key */
+	/**
+	 * An SSH key-based authentication request
+	 * @see git_cred_ssh_key_new
+	 */
 	GIT_CREDTYPE_SSH_KEY = (1u << 1),
 
-	/* git_cred_ssh_custom */
+	/**
+	 * An SSH key-based authentication request, with a custom signature
+	 * @see git_cred_ssh_custom_new
+	 */
 	GIT_CREDTYPE_SSH_CUSTOM = (1u << 2),
 
-	/* git_cred_default */
+	/**
+	 * An NTLM/Negotiate-based authentication request.
+	 * @see git_cred_default
+	 */
 	GIT_CREDTYPE_DEFAULT = (1u << 3),
 
-	/* git_cred_ssh_interactive */
+	/**
+	 * An SSH interactive authentication request
+	 * @see git_cred_ssh_interactive_new
+	 */
 	GIT_CREDTYPE_SSH_INTERACTIVE = (1u << 4),
 
 	/**
-	 * Username-only information
+	 * Username-only authentication request
 	 *
-	 * If the SSH transport does not know which username to use,
-	 * it will ask via this credential type.
+	 * Used as a pre-authentication step if the underlying transport
+	 * (eg. SSH, with no username in its URL) does not know which username
+	 * to use.
+	 *
+	 * @see git_cred_username_new
 	 */
 	GIT_CREDTYPE_USERNAME = (1u << 5),
+
+	/**
+	 * An SSH key-based authentication request
+	 *
+	 * Allows credentials to be read from memory instead of files.
+	 * Note that because of differences in crypto backend support, it might
+	 * not be functional.
+	 *
+	 * @see git_cred_ssh_key_memory_new
+	 */
+	GIT_CREDTYPE_SSH_MEMORY = (1u << 6),
 } git_credtype_t;
 
-/* The base structure for all credential types */
 typedef struct git_cred git_cred;
 
+/**
+ * The base structure for all credential types
+ */
 struct git_cred {
-	git_credtype_t credtype;
-	void (*free)(git_cred *cred);
+	git_credtype_t credtype; /**< A type of credential */
+	void GIT_CALLBACK(free)(git_cred *cred);
 };
 
 /** A plaintext username and password */
@@ -133,8 +165,8 @@ typedef struct _LIBSSH2_USERAUTH_KBDINT_PROMPT LIBSSH2_USERAUTH_KBDINT_PROMPT;
 typedef struct _LIBSSH2_USERAUTH_KBDINT_RESPONSE LIBSSH2_USERAUTH_KBDINT_RESPONSE;
 #endif
 
-typedef int (*git_cred_sign_callback)(LIBSSH2_SESSION *session, unsigned char **sig, size_t *sig_len, const unsigned char *data, size_t data_len, void **abstract);
-typedef void (*git_cred_ssh_interactive_callback)(const char* name, int name_len, const char* instruction, int instruction_len, int num_prompts, const LIBSSH2_USERAUTH_KBDINT_PROMPT* prompts, LIBSSH2_USERAUTH_KBDINT_RESPONSE* responses, void **abstract);
+typedef int GIT_CALLBACK(git_cred_sign_callback)(LIBSSH2_SESSION *session, unsigned char **sig, size_t *sig_len, const unsigned char *data, size_t data_len, void **abstract);
+typedef void GIT_CALLBACK(git_cred_ssh_interactive_callback)(const char* name, int name_len, const char* instruction, int instruction_len, int num_prompts, const LIBSSH2_USERAUTH_KBDINT_PROMPT* prompts, LIBSSH2_USERAUTH_KBDINT_RESPONSE* responses, void **abstract);
 
 /**
  * A ssh key from disk
@@ -288,18 +320,46 @@ GIT_EXTERN(int) git_cred_default_new(git_cred **out);
 GIT_EXTERN(int) git_cred_username_new(git_cred **cred, const char *username);
 
 /**
+ * Create a new ssh key credential object reading the keys from memory.
+ *
+ * @param out The newly created credential object.
+ * @param username username to use to authenticate.
+ * @param publickey The public key of the credential.
+ * @param privatekey The private key of the credential.
+ * @param passphrase The passphrase of the credential.
+ * @return 0 for success or an error code for failure
+ */
+GIT_EXTERN(int) git_cred_ssh_key_memory_new(
+	git_cred **out,
+	const char *username,
+	const char *publickey,
+	const char *privatekey,
+	const char *passphrase);
+
+
+/**
+ * Free a credential.
+ *
+ * This is only necessary if you own the object; that is, if you are a
+ * transport.
+ *
+ * @param cred the object to free
+ */
+GIT_EXTERN(void) git_cred_free(git_cred *cred);
+
+/**
  * Signature of a function which acquires a credential object.
  *
- * - cred: The newly created credential object.
- * - url: The resource for which we are demanding a credential.
- * - username_from_url: The username that was embedded in a "user\@host"
+ * @param cred The newly created credential object.
+ * @param url The resource for which we are demanding a credential.
+ * @param username_from_url The username that was embedded in a "user\@host"
  *                          remote url, or NULL if not included.
- * - allowed_types: A bitmask stating which cred types are OK to return.
- * - payload: The payload provided when specifying this callback.
- * - returns 0 for success, < 0 to indicate an error, > 0 to indicate
+ * @param allowed_types A bitmask stating which cred types are OK to return.
+ * @param payload The payload provided when specifying this callback.
+ * @return 0 for success, < 0 to indicate an error, > 0 to indicate
  *       no credential was acquired
  */
-typedef int (*git_cred_acquire_cb)(
+typedef int GIT_CALLBACK(git_cred_acquire_cb)(
 	git_cred **cred,
 	const char *url,
 	const char *username_from_url,

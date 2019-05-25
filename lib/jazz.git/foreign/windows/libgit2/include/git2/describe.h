@@ -23,7 +23,7 @@ GIT_BEGIN_DECL
 /**
  * Reference lookup strategy
  *
- * These behave like the --tags and --all optios to git-describe,
+ * These behave like the --tags and --all options to git-describe,
  * namely they say to look for any reference in either refs/tags/ or
  * refs/ respectively.
  */
@@ -36,16 +36,15 @@ typedef enum {
 /**
  * Describe options structure
  *
- * Initialize with `GIT_DESCRIBE_OPTIONS_INIT` macro to correctly set
- * the `version` field.  E.g.
+ * Initialize with `GIT_DESCRIBE_OPTIONS_INIT`. Alternatively, you can
+ * use `git_describe_init_options`.
  *
- *		git_describe_options opts = GIT_DESCRIBE_OPTIONS_INIT;
  */
 typedef struct git_describe_options {
 	unsigned int version;
 
-	unsigned int max_candidates_tags; /** default: 10 */
-	unsigned int describe_strategy; /** default: GIT_DESCRIBE_DEFAULT */
+	unsigned int max_candidates_tags; /**< default: 10 */
+	unsigned int describe_strategy; /**< default: GIT_DESCRIBE_DEFAULT */
 	const char *pattern;
 	/**
 	 * When calculating the distance from the matching tag or
@@ -70,10 +69,24 @@ typedef struct git_describe_options {
 	GIT_DESCRIBE_DEFAULT_MAX_CANDIDATES_TAGS, \
 }
 
+/**
+ * Initialize git_describe_options structure
+ *
+ * Initializes a `git_describe_options` with default values. Equivalent to creating
+ * an instance with GIT_DESCRIBE_OPTIONS_INIT.
+ *
+ * @param opts The `git_describe_options` struct to initialize.
+ * @param version The struct version; pass `GIT_DESCRIBE_OPTIONS_VERSION`.
+ * @return Zero on success; -1 on failure.
+ */
 GIT_EXTERN(int) git_describe_init_options(git_describe_options *opts, unsigned int version);
 
 /**
- * Options for formatting the describe string
+ * Describe format options structure
+ *
+ * Initialize with `GIT_DESCRIBE_FORMAT_OPTIONS_INIT`. Alternatively, you can
+ * use `git_describe_format_init_options`.
+ *
  */
 typedef struct {
 	unsigned int version;
@@ -94,7 +107,7 @@ typedef struct {
 	 * If the workdir is dirty and this is set, this string will
 	 * be appended to the description string.
 	 */
-	char *dirty_suffix;
+	const char *dirty_suffix;
 } git_describe_format_options;
 
 #define GIT_DESCRIBE_FORMAT_OPTIONS_VERSION 1
@@ -103,8 +116,21 @@ typedef struct {
 		GIT_DESCRIBE_DEFAULT_ABBREVIATED_SIZE, \
  }
 
+/**
+ * Initialize git_describe_format_options structure
+ *
+ * Initializes a `git_describe_format_options` with default values. Equivalent to creating
+ * an instance with GIT_DESCRIBE_FORMAT_OPTIONS_INIT.
+ *
+ * @param opts The `git_describe_format_options` struct to initialize.
+ * @param version The struct version; pass `GIT_DESCRIBE_FORMAT_OPTIONS_VERSION`.
+ * @return Zero on success; -1 on failure.
+ */
 GIT_EXTERN(int) git_describe_init_format_options(git_describe_format_options *opts, unsigned int version);
 
+/**
+ * A struct that stores the result of a describe operation.
+ */
 typedef struct git_describe_result git_describe_result;
 
 /**
@@ -115,7 +141,7 @@ typedef struct git_describe_result git_describe_result;
  * @param result pointer to store the result. You must free this once
  * you're done with it.
  * @param committish a committish to describe
- * @param opts the lookup options
+ * @param opts the lookup options (or NULL for defaults)
  */
 GIT_EXTERN(int) git_describe_commit(
 	git_describe_result **result,
@@ -132,7 +158,7 @@ GIT_EXTERN(int) git_describe_commit(
  * @param out pointer to store the result. You must free this once
  * you're done with it.
  * @param repo the repository in which to perform the describe
- * @param opts the lookup options
+ * @param opts the lookup options (or NULL for defaults)
  */
 GIT_EXTERN(int) git_describe_workdir(
 	git_describe_result **out,
@@ -145,7 +171,7 @@ GIT_EXTERN(int) git_describe_workdir(
  * @param out The buffer to store the result
  * @param result the result from `git_describe_commit()` or
  * `git_describe_workdir()`.
- * @param opts the formatting options
+ * @param opts the formatting options (or NULL for defaults)
  */
 GIT_EXTERN(int) git_describe_format(
 	git_buf *out,
