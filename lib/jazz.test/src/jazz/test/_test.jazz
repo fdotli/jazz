@@ -38,6 +38,35 @@
 (module jazz.test jazz
 
 
+(import (jazz.listener)
+        (jazz.time))
+
+
+(start-socket-server)
+(wait-socket-server)
+
+
+(let ((listener (open-stream-listener)))
+  (let ((write-file (get-write-file listener))
+        (count 100000))
+    (let ((producer
+            (new-thread
+              (lambda ()
+                (loop (repeat count)
+                      (listener_stop write-file)))
+              'producer))
+          (consumer
+            (new-thread
+              (lambda ()
+                (let ((timer (new Timer)))
+                  (loop (repeat count)
+                        (wait listener))
+                  (terminal (real-duration-in-milliseconds timer)))))))
+      (thread-start! producer)
+      (thread-start! consumer)
+      (thread-join! consumer))))
+
+
 ;;;
 ;;;; Generate
 ;;;
