@@ -48,23 +48,29 @@
 
 (let ((listener (open-stream-listener)))
   (let ((write-file (get-write-file listener))
+        (threads 5)
         (count 100000))
-    (let ((producer
-            (new-thread
-              (lambda ()
-                (loop (repeat count)
-                      (listener_stop write-file)))
-              'producer))
-          (consumer
-            (new-thread
-              (lambda ()
-                (let ((timer (new Timer)))
-                  (loop (repeat count)
-                        (wait listener))
-                  (terminal (real-duration-in-milliseconds timer)))))))
-      (thread-start! producer)
-      (thread-start! consumer)
-      (thread-join! consumer))))
+    (let ((producers
+            (loop (repeat threads)
+                  (collect
+                    (new-thread
+                      (lambda ()
+                        (loop (repeat count)
+                              (listener_stop write-file)))
+                      'producer))))
+          (consumers
+            (loop (repeat threads)
+                  (collect
+                    (new-thread
+                      (lambda ()
+                        (let ((timer (new Timer)))
+                          (loop (repeat count)
+                                (wait listener))
+                          (terminal (real-duration-in-milliseconds timer))))
+                      'consumer)))))
+      (for-each thread-start! producers)
+      (for-each thread-start! consumers)
+      (for-each thread-join! consumers))))
 
 
 ;;;
