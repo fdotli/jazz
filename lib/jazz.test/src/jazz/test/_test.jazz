@@ -46,31 +46,38 @@
 (wait-socket-server)
 
 
-(let ((listener (open-stream-listener)))
-  (let ((write-file (get-write-file listener))
-        (threads 5)
-        (count 100000))
+(let ((threads 10)
+      (count 100000))
+  (let ((listeners (make-vector threads))
+        (write-files (make-vector threads)))
+    (loop (for n from 0 below threads)
+          (vector-set! listeners n (open-stream-listener))
+          (vector-set! write-files n (get-write-file (vector-ref listeners n))))
     (let ((producers
-            (loop (repeat threads)
+            (loop (for n from 0 below threads)
                   (collect
                     (new-thread
                       (lambda ()
-                        (loop (repeat count)
-                              (listener_stop write-file)))
+                        (let ((write-file (vector-ref write-files n)))
+                          (loop (repeat count)
+                                (listener_stop write-file))))
                       'producer))))
           (consumers
-            (loop (repeat threads)
+            (loop (for n from 0 below threads)
                   (collect
                     (new-thread
                       (lambda ()
-                        (let ((timer (new Timer)))
+                        (let ((listener (vector-ref listeners n)))
                           (loop (repeat count)
-                                (wait listener))
-                          (terminal (real-duration-in-milliseconds timer))))
+                                (wait listener))))
                       'consumer)))))
-      (for-each thread-start! producers)
-      (for-each thread-start! consumers)
-      (for-each thread-join! consumers))))
+      (let ((timer (new Timer)))
+        (for-each thread-start! producers)
+        (for-each thread-start! consumers)
+        (for-each thread-join! consumers)
+        (let ((total (* threads count))
+              (duration (real-duration timer)))
+          (format :terminal "{r precision: 0}/s{%}" (/ total duration)))))))
 
 
 ;;;
