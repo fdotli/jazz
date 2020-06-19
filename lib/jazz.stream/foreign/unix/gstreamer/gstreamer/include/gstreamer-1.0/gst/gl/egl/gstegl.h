@@ -36,8 +36,10 @@
 #endif
 #endif
 
+#ifndef __GI_SCANNER__
 #ifndef EGL_EGLEXT_PROTOTYPES
 #define EGL_EGLEXT_PROTOTYPES 1
+#endif
 #endif
 #include <EGL/egl.h>
 #include <EGL/eglext.h>
@@ -50,6 +52,10 @@
 /* compatibility definitions... */
 #if !GST_GL_HAVE_EGLATTRIB
 typedef gintptr EGLAttrib;
+#endif
+
+#if !GST_GL_HAVE_EGLUINT64KHR
+typedef guint64 EGLuint64KHR;
 #endif
 
 GST_GL_API

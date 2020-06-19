@@ -59,6 +59,8 @@ typedef struct _GstAggregatorPadPrivate GstAggregatorPadPrivate;
  * @segment: last segment received.
  *
  * The implementation the GstPad to use with #GstAggregator
+ *
+ * Since: 1.14
  */
 struct _GstAggregatorPad
 {
@@ -84,6 +86,7 @@ struct _GstAggregatorPad
  *               Called before input buffers are queued in the pad, return %TRUE
  *               if the buffer should be skipped.
  *
+ * Since: 1.14
  */
 struct _GstAggregatorPadClass
 {
@@ -137,6 +140,8 @@ gboolean    gst_aggregator_pad_is_eos       (GstAggregatorPad *  pad);
  * @srcpad: the aggregator's source pad
  *
  * Aggregator base class object structure.
+ *
+ * Since: 1.14
  */
 struct _GstAggregator
 {
@@ -240,6 +245,8 @@ struct _GstAggregator
  *
  * Basically, a simple implementation will override @aggregate, and call
  * _finish_buffer from inside that function.
+ *
+ * Since: 1.14
  */
 struct _GstAggregatorClass {
   GstElementClass   parent_class;
@@ -286,6 +293,11 @@ struct _GstAggregatorClass {
                                         GstPadTemplate * templ,
                                         const gchar    * req_name,
                                         const GstCaps  * caps);
+
+  /**
+   * GstAggregatorClass::update_src_caps:
+   * @ret: (out) (allow-none):
+   */
   GstFlowReturn     (*update_src_caps) (GstAggregator *  self,
                                         GstCaps       *  caps,
                                         GstCaps       ** ret);
@@ -348,6 +360,15 @@ void            gst_aggregator_get_allocator       (GstAggregator               
                                                     GstAllocator                 ** allocator,
                                                     GstAllocationParams           * params);
 
+GST_BASE_API
+GstClockTime    gst_aggregator_simple_get_next_time (GstAggregator                * self);
+
+
 G_END_DECLS
+
+#ifdef G_DEFINE_AUTOPTR_CLEANUP_FUNC
+G_DEFINE_AUTOPTR_CLEANUP_FUNC(GstAggregator, gst_object_unref)
+G_DEFINE_AUTOPTR_CLEANUP_FUNC(GstAggregatorPad, gst_object_unref)
+#endif
 
 #endif /* __GST_AGGREGATOR_H__ */

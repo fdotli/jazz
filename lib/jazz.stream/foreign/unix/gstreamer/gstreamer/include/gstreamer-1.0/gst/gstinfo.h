@@ -253,7 +253,7 @@ struct _GstDebugCategory {
  * GST_FUNCTION:
  *
  * This macro should evaluate to the name of the current function and be should
- * be defined when configuring your project, as it is compiler dependant. If it
+ * be defined when configuring your project, as it is compiler dependent. If it
  * is not defined, some default value is used. It is used to provide debugging
  * output with the function name of the message.
  *
@@ -271,7 +271,7 @@ struct _GstDebugCategory {
 #endif /* ifndef GST_FUNCTION */
 
 /**
- * GST_PTR_FORMAT:
+ * GST_PTR_FORMAT: (skip):
  *
  * printf format type used to debug GStreamer types. You can use this in
  * combination with GStreamer's debug logging system as well as the functions
@@ -287,7 +287,7 @@ struct _GstDebugCategory {
 #define GST_PTR_FORMAT     "p\aA"
 
 /**
- * GST_SEGMENT_FORMAT:
+ * GST_SEGMENT_FORMAT: (skip):
  *
  * printf format type used to debug GStreamer segments. You can use this in
  * combination with GStreamer's debug logging system as well as the functions

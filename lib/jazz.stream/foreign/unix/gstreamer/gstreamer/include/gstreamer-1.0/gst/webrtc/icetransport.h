@@ -53,7 +53,7 @@ struct _GstWebRTCICETransport
 
 struct _GstWebRTCICETransportClass
 {
-  GstBinClass               parent_class;
+  GstObjectClass               parent_class;
 
   gboolean                  (*gather_candidates)        (GstWebRTCICETransport * transport);
 
@@ -70,6 +70,10 @@ GST_WEBRTC_API
 void            gst_webrtc_ice_transport_selected_pair_change       (GstWebRTCICETransport * ice);
 GST_WEBRTC_API
 void            gst_webrtc_ice_transport_new_candidate              (GstWebRTCICETransport * ice, guint stream_id, GstWebRTCICEComponent component, gchar * attr);
+
+#ifdef G_DEFINE_AUTOPTR_CLEANUP_FUNC
+G_DEFINE_AUTOPTR_CLEANUP_FUNC(GstWebRTCICETransport, gst_object_unref)
+#endif
 
 G_END_DECLS
 

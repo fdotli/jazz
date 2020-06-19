@@ -53,7 +53,7 @@ struct _GstWebRTCDTLSTransport
 
 struct _GstWebRTCDTLSTransportClass
 {
-  GstBinClass               parent_class;
+  GstObjectClass               parent_class;
 
   gpointer                  _padding[GST_PADDING];
 };
@@ -64,6 +64,10 @@ GstWebRTCDTLSTransport *    gst_webrtc_dtls_transport_new               (guint s
 GST_WEBRTC_API
 void                        gst_webrtc_dtls_transport_set_transport     (GstWebRTCDTLSTransport * transport,
                                                                          GstWebRTCICETransport * ice);
+
+#ifdef G_DEFINE_AUTOPTR_CLEANUP_FUNC
+G_DEFINE_AUTOPTR_CLEANUP_FUNC(GstWebRTCDTLSTransport, gst_object_unref)
+#endif
 
 G_END_DECLS
 
