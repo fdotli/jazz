@@ -73,14 +73,14 @@
  *
  * Configures the inclusion of the debugging subsystem
  */
-/* #undef GST_DISABLE_GST_DEBUG */
+#undef GST_DISABLE_GST_DEBUG
 
 /**
  * GST_DISABLE_PARSE:
  *
  * Configures the inclusion of the gst-launch parser
  */
-/* #undef GST_DISABLE_PARSE */
+#undef GST_DISABLE_PARSE
 
 /**
  * GST_DISABLE_REGISTRY:
@@ -89,11 +89,33 @@
  * If one disables this, required plugins need to be loaded and registered
  * manually
  */
-/* #undef GST_DISABLE_REGISTRY */
+#undef GST_DISABLE_REGISTRY
+
+/**
+ * GST_DISABLE_CAST_CHECKS:
+ *
+ * Disable run-time GObject cast checks
+ */
+#define GST_DISABLE_CAST_CHECKS 1
+
+/**
+ * GST_DISABLE_GLIB_ASSERTS:
+ *
+ * Disable GLib assertion
+ */
+#define GST_DISABLE_GLIB_ASSERTS 1
+
+/**
+ * GST_DISABLE_GLIB_CHECKS:
+ *
+ * Disable GLib checks such as API guards
+ */
+#define GST_DISABLE_GLIB_CHECKS 1
+
 
 /* FIXME: test and document these! */
 /* Configures the use of external plugins */
-/* #undef GST_DISABLE_PLUGIN */
+#undef GST_DISABLE_PLUGIN
 
 /* Whether or not the CPU supports unaligned access
  * The macros used are defined consistently by GCC, Clang, MSVC, Sun, and ICC
@@ -155,8 +177,18 @@
 # endif
 #endif
 
+#if defined(_MSC_VER) && !defined(GST_STATIC_COMPILATION)
+# define GST_API_IMPORT __declspec(dllimport) extern
+#else
+# define GST_API_IMPORT extern
+#endif
+
 #ifndef GST_API
-#define GST_API GST_EXPORT
+# ifdef BUILDING_GST
+#  define GST_API GST_API_EXPORT        /* from config.h */
+# else
+#  define GST_API GST_API_IMPORT
+# endif
 #endif
 
 /* These macros are used to mark deprecated functions in GStreamer headers,

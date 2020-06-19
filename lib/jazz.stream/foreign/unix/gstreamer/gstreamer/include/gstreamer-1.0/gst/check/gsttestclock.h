@@ -106,7 +106,7 @@ GST_CHECK_API
 void          gst_test_clock_wait_for_next_pending_id (GstTestClock * test_clock,
                                                        GstClockID   * pending_id);
 
-GST_DEPRECATED_FOR(gst_test_clock_wait_for_multiple_pending_ids)
+GST_CHECK_DEPRECATED_FOR(gst_test_clock_wait_for_multiple_pending_ids)
 void          gst_test_clock_wait_for_pending_id_count (GstTestClock * test_clock,
                                                         guint          count);
 
@@ -120,6 +120,12 @@ GST_CHECK_API
 void          gst_test_clock_wait_for_multiple_pending_ids (GstTestClock * test_clock,
                                                             guint          count,
                                                             GList       ** pending_list);
+
+GST_CHECK_API
+gboolean      gst_test_clock_timed_wait_for_multiple_pending_ids (GstTestClock * test_clock,
+                                                                  guint          count,
+                                                                  guint          timeout_ms,
+                                                                  GList       ** pending_list);
 
 GST_CHECK_API
 guint         gst_test_clock_process_id_list (GstTestClock * test_clock,

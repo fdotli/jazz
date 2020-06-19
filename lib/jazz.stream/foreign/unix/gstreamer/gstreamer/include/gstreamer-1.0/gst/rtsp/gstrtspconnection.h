@@ -137,6 +137,10 @@ GstRTSPResult      gst_rtsp_connection_send           (GstRTSPConnection *conn, 
                                                        GTimeVal *timeout);
 
 GST_RTSP_API
+GstRTSPResult      gst_rtsp_connection_send_messages  (GstRTSPConnection *conn, GstRTSPMessage *messages, guint n_messages,
+                                                       GTimeVal *timeout);
+
+GST_RTSP_API
 GstRTSPResult      gst_rtsp_connection_receive        (GstRTSPConnection *conn, GstRTSPMessage *message,
                                                        GTimeVal *timeout);
 
@@ -252,7 +256,7 @@ typedef struct _GstRTSPWatch GstRTSPWatch;
  * @tunnel_lost: callback when the post connection of a tunnel is closed.
  * @tunnel_http_response: callback when an HTTP response to the GET request
  *   is about to be sent for a tunneled connection. The response can be
- *   modified in the callback. Since 1.4.
+ *   modified in the callback. Since: 1.4.
  *
  * Callback functions from a #GstRTSPWatch.
  */
@@ -311,6 +315,12 @@ GstRTSPResult      gst_rtsp_watch_write_data         (GstRTSPWatch *watch,
 GST_RTSP_API
 GstRTSPResult      gst_rtsp_watch_send_message       (GstRTSPWatch *watch,
                                                       GstRTSPMessage *message,
+                                                      guint *id);
+
+GST_RTSP_API
+GstRTSPResult      gst_rtsp_watch_send_messages      (GstRTSPWatch *watch,
+                                                      GstRTSPMessage *messages,
+                                                      guint n_messages,
                                                       guint *id);
 
 GST_RTSP_API

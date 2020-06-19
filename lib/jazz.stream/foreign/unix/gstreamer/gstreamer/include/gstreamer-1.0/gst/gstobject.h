@@ -43,7 +43,7 @@ G_BEGIN_DECLS
  * GstObjectFlags:
  * @GST_OBJECT_FLAG_MAY_BE_LEAKED: the object is expected to stay alive even
  * after gst_deinit() has been called and so should be ignored by leak
- * detection tools. (Since 1.10)
+ * detection tools. (Since: 1.10)
  * @GST_OBJECT_FLAG_LAST: subclasses can add additional flags starting from this flag
  *
  * The standard flags that an gstobject may have.
@@ -253,6 +253,10 @@ gpointer	gst_object_ref			(gpointer object);
 
 GST_API
 void		gst_object_unref		(gpointer object);
+
+GST_API
+void        gst_clear_object (GstObject **object_ptr);
+#define     gst_clear_object(object_ptr) g_clear_pointer ((object_ptr), gst_object_unref)
 
 GST_API
 gpointer        gst_object_ref_sink		(gpointer object);

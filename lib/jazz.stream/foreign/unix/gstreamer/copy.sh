@@ -1,6 +1,7 @@
 #! /bin/sh
 
-GSTREAMER=~/Devel/gstreamer/cerbero/build/dist/linux_x86_64
+GSTREAMER=/usr
+GSTREAMER_LIB="$GSTREAMER/lib"
 
 if [ -d gstreamer ]; then
   rm -r gstreamer
@@ -14,12 +15,14 @@ mkdir gstreamer
 #
 
 cpplugin() {
-    cp $GSTREAMER/lib/$1.so gstreamer/lib/$1.so
+    test -r $GSTREAMER_LIB/$1.so && echo Copying plugin $1 || echo Failed plugin $1
+    cp $GSTREAMER_LIB/$1.so gstreamer/lib/$1.so
     patchelf --set-rpath '$ORIGIN/..' gstreamer/lib/$1.so
 }
 
 cpshared() {
-    cp $GSTREAMER/lib/$1.$2 gstreamer/lib/$1.$2
+    test -r $GSTREAMER_LIB/$1.$2 && echo Copying shared $1.$2 || echo Failed shared $1.$2
+    cp $GSTREAMER_LIB/$1.$2 gstreamer/lib/$1.$2
     patchelf --set-rpath '$ORIGIN' gstreamer/lib/$1.$2
     ln -sr gstreamer/lib/$1.$2 gstreamer/lib/$1
 }
@@ -45,6 +48,7 @@ cpplugin gstreamer-1.0/libgstlibav
 cpplugin gstreamer-1.0/libgstmatroska
 cpplugin gstreamer-1.0/libgstogg
 cpplugin gstreamer-1.0/libgstplayback
+cpplugin gstreamer-1.0/libgstpulseaudio
 cpplugin gstreamer-1.0/libgstsubparse
 cpplugin gstreamer-1.0/libgsttypefindfunctions
 cpplugin gstreamer-1.0/libgstvideoconvert
@@ -84,8 +88,8 @@ cpshared liborc-0.4.so 0
 cpshared libpng16.so 16
 cpshared libvorbis.so 0
 cpshared libvorbisenc.so 2
-cpshared libvpx.so 4
-cpshared libx264.so 148
+cpshared libvpx.so 6
+cpshared libx264.so 159
 cpshared libbz2.so 1.0
 cpshared libz.so 1
 
@@ -96,7 +100,7 @@ cpshared libz.so 1
 
 mkdir gstreamer/libexec
 mkdir gstreamer/libexec/gstreamer-1.0
-cp $GSTREAMER/libexec/gstreamer-1.0/gst-plugin-scanner gstreamer/libexec/gstreamer-1.0
+cp -v $GSTREAMER_LIB/gstreamer-1.0/gst-plugin-scanner gstreamer/libexec/gstreamer-1.0
 patchelf --set-rpath '$ORIGIN/../../lib' gstreamer/libexec/gstreamer-1.0/gst-plugin-scanner
 
 
@@ -105,6 +109,14 @@ patchelf --set-rpath '$ORIGIN/../../lib' gstreamer/libexec/gstreamer-1.0/gst-plu
 #
 
 mkdir gstreamer/include
-cp -r $GSTREAMER/include/gstreamer-1.0 gstreamer/include
-cp -r $GSTREAMER/include/glib-2.0 gstreamer/include
-cp -r $GSTREAMER/lib/glib-2.0 gstreamer/lib
+[ -r $GSTREAMER/include/gstreamer-1.0 ] && \
+  cp -r $GSTREAMER/include/gstreamer-1.0 gstreamer/include || \
+  echo 'Failed copying gstreamer include files'
+
+[ -r $GSTREAMER/include/glib-2.0 ] && \
+  cp -r $GSTREAMER/include/glib-2.0 gstreamer/include || \
+  echo 'Failed copying glib-2.0 include files'
+
+[ -r $GSTREAMER/lib/glib-2.0 ] && \
+  cp -r $GSTREAMER/lib/glib-2.0 gstreamer/lib || \
+  echo 'Failed copying glib-2.0 lib files'

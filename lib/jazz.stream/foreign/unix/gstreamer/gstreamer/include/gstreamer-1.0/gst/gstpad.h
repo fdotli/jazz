@@ -452,6 +452,9 @@ typedef GstPadLinkReturn	(*GstPadLinkFunction)		(GstPad *pad, GstObject *parent,
  *          during the execution of this function.
  *
  * Function signature to handle a unlinking the pad prom its peer.
+ *
+ * The pad's lock is already held when the unlink function is called, so most
+ * pad functions cannot be called from within the callback.
  */
 typedef void			(*GstPadUnlinkFunction)		(GstPad *pad, GstObject *parent);
 
@@ -692,7 +695,7 @@ typedef gboolean  (*GstPadStickyEventsForeachFunction) (GstPad *pad, GstEvent **
  * @GST_PAD_FLAG_ACCEPT_TEMPLATE: the default accept-caps handler will use
  *                      the template pad caps instead of query caps to
  *                      compare with the accept caps. Use this in combination
- *                      with %GST_PAD_FLAG_ACCEPT_INTERSECT. (Since 1.6)
+ *                      with %GST_PAD_FLAG_ACCEPT_INTERSECT. (Since: 1.6)
  * @GST_PAD_FLAG_LAST: offset to define more flags
  *
  * Pad state flags
