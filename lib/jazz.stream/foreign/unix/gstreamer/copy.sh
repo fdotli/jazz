@@ -54,14 +54,15 @@ cpplugin gstreamer-1.0/libgsttypefindfunctions
 cpplugin gstreamer-1.0/libgstvideoconvert
 cpplugin gstreamer-1.0/libgstvideofilter
 cpplugin gstreamer-1.0/libgstvideoparsersbad
+cpplugin gstreamer-1.0/libgstvideorate
 cpplugin gstreamer-1.0/libgstvideoscale
 cpplugin gstreamer-1.0/libgstvideotestsrc
 cpplugin gstreamer-1.0/libgstvideo4linux2
 cpplugin gstreamer-1.0/libgstvolume
 cpplugin gstreamer-1.0/libgstvorbis
-cpplugin gstreamer-1.0/libgstvpx
 cpplugin gstreamer-1.0/libgstwavparse
 cpplugin gstreamer-1.0/libgstx264
+cpplugin gstreamer-1.0/libgstximagesrc
 
 cpshared libffi.so 7
 cpshared libgio-2.0.so 0
@@ -88,7 +89,6 @@ cpshared liborc-0.4.so 0
 cpshared libpng16.so 16
 cpshared libvorbis.so 0
 cpshared libvorbisenc.so 2
-cpshared libvpx.so 6
 cpshared libx264.so 159
 cpshared libbz2.so 1.0
 cpshared libz.so 1
