@@ -32,7 +32,7 @@ typedef struct _GstVideoAncillary GstVideoAncillary;
  * GstVideoAncillary:
  * @DID: The Data Identifier
  * @SDID_block_number: The Secondary Data Identifier (if type 2) or the Data
- *                     Block Number (if type 2)
+ *                     Block Number (if type 1)
  * @data_count: The amount of data (in bytes) in @data (max 255 bytes)
  * @data: (array length=data_count): The user data content of the Ancillary packet.
  *    Does not contain the ADF, DID, SDID nor CS.
@@ -55,6 +55,11 @@ struct _GstVideoAncillary {
   gpointer _gst_reserved[GST_PADDING];
 };
 
+/**
+ * GstVideoAncillaryDID:
+ *
+ * Since: 1.16
+ */
 typedef enum {
   GST_VIDEO_ANCILLARY_DID_UNDEFINED = 0x00,
   GST_VIDEO_ANCILLARY_DID_DELETION  = 0x80,
@@ -86,6 +91,7 @@ typedef enum {
  * GstVideoAncillaryDID16:
  * @GST_VIDEO_ANCILLARY_DID16_S334_EIA_708: CEA 708 Ancillary data according to SMPTE 334
  * @GST_VIDEO_ANCILLARY_DID16_S334_EIA_608: CEA 608 Ancillary data according to SMPTE 334
+ * @GST_VIDEO_ANCILLARY_DID16_S2016_3_AFD_BAR: AFD/Bar Ancillary data according to SMPTE 2016-3 (Since: 1.18)
  *
  * Some know types of Ancillary Data identifiers.
  *
@@ -94,6 +100,7 @@ typedef enum {
 typedef enum {
   GST_VIDEO_ANCILLARY_DID16_S334_EIA_708	= 0x6101,
   GST_VIDEO_ANCILLARY_DID16_S334_EIA_608	= 0x6102,
+  GST_VIDEO_ANCILLARY_DID16_S2016_3_AFD_BAR	= 0x4105,
 } GstVideoAncillaryDID16;
 
 /* Closed Caption support */
@@ -104,16 +111,20 @@ typedef enum {
  *      this format is not recommended since is does not specify to
  *      which field the caption comes from and therefore assumes
  *      it comes from the first field (and that there is no information
- *      on the second field). Use @@GST_VIDEO_CAPTION_TYPE_CEA608_IN_CEA708_RAW
- *      if you wish to store CEA-608 from two fields.
- * @GST_VIDEO_CAPTION_TYPE_CEA608_IN_CEA708_RAW: CEA-608 as cc_data byte triplets.
- *      The first byte of each triplet shall specify the field as in CEA-708
- *      (i.e: 0xFC for the first field or 0xFD for the second field.). The 2nd
- *      and 3rd byte of each triplet at the cc1 and cc2 bytes. Use this if
- *      there is *only* CEA-608 caption. If there is also CEA-708 caption,
- *      use @GST_VIDEO_CAPTION_TYPE_CEA708_RAW.
+ *      on the second field). Use @GST_VIDEO_CAPTION_TYPE_CEA708_RAW
+ *      if you wish to store CEA-608 from two fields and prefix each byte pair
+ *      with 0xFC for the first field and 0xFD for the second field.
+ * @GST_VIDEO_CAPTION_TYPE_CEA608_S334_1A: CEA-608 as byte triplets as defined
+ *      in SMPTE S334-1 Annex A. The second and third byte of the byte triplet
+ *      is the raw CEA608 data, the first byte is a bitfield: The top/7th bit is
+ *      0 for the second field, 1 for the first field, bit 6 and 5 are 0 and
+ *      bits 4 to 0 are a 5 bit unsigned integer that represents the line
+ *      offset relative to the base-line of the original image format (line 9
+ *      for 525-line field 1, line 272 for 525-line field 2, line 5 for
+ *      625-line field 1 and line 318 for 625-line field 2).
  * @GST_VIDEO_CAPTION_TYPE_CEA708_RAW: CEA-708 as cc_data byte triplets. They
- *      can also contain 608-in-708.
+ *      can also contain 608-in-708 and the first byte of each triplet has to
+ *      be inspected for detecting the type.
  * @GST_VIDEO_CAPTION_TYPE_CEA708_CDP: CEA-708 (and optionally CEA-608) in
  *      a CDP (Caption Distribution Packet) defined by SMPTE S-334-2.
  *      Contains the whole CDP (starting with 0x9669).
@@ -125,10 +136,18 @@ typedef enum {
 typedef enum {
   GST_VIDEO_CAPTION_TYPE_UNKNOWN                = 0,
   GST_VIDEO_CAPTION_TYPE_CEA608_RAW		= 1,
-  GST_VIDEO_CAPTION_TYPE_CEA608_IN_CEA708_RAW   = 2,
+  GST_VIDEO_CAPTION_TYPE_CEA608_S334_1A		= 2,
   GST_VIDEO_CAPTION_TYPE_CEA708_RAW		= 3,
   GST_VIDEO_CAPTION_TYPE_CEA708_CDP		= 4
 } GstVideoCaptionType;
+
+GST_VIDEO_API
+GstVideoCaptionType
+gst_video_caption_type_from_caps (const GstCaps *caps);
+
+GST_VIDEO_API
+GstCaps *
+gst_video_caption_type_to_caps (GstVideoCaptionType type);
 
 /**
  * GstVideoCaptionMeta:
@@ -223,6 +242,39 @@ void               gst_video_vbi_parser_free (GstVideoVBIParser *parser);
 GST_VIDEO_API
 void		   gst_video_vbi_parser_add_line (GstVideoVBIParser *parser, const guint8 *data);
 
+/**
+ * GstVideoVBIEncoder:
+ *
+ * An encoder for writing ancillary data to the
+ * Vertical Blanking Interval lines of component signals.
+ *
+ * Since: 1.16
+ */
+
+typedef struct _GstVideoVBIEncoder GstVideoVBIEncoder;
+
+GST_VIDEO_API
+GType gst_video_vbi_encoder_get_type (void);
+
+GST_VIDEO_API
+GstVideoVBIEncoder *gst_video_vbi_encoder_new  (GstVideoFormat format, guint32 pixel_width);
+
+GST_VIDEO_API
+GstVideoVBIEncoder *gst_video_vbi_encoder_copy (const GstVideoVBIEncoder *encoder);
+
+GST_VIDEO_API
+void               gst_video_vbi_encoder_free  (GstVideoVBIEncoder *encoder);
+
+GST_VIDEO_API
+gboolean gst_video_vbi_encoder_add_ancillary   (GstVideoVBIEncoder *encoder,
+                                                gboolean            composite,
+                                                guint8              DID,
+                                                guint8              SDID_block_number,
+                                                const guint8       *data,
+                                                guint               data_count);
+
+GST_VIDEO_API
+void gst_video_vbi_encoder_write_line (GstVideoVBIEncoder *encoder, guint8 *data);
 
 G_END_DECLS
 

@@ -18,6 +18,9 @@ GType gst_rtcpfb_type_get_type (void);
 GST_RTP_API
 GType gst_rtcpsdes_type_get_type (void);
 #define GST_TYPE_RTCPSDES_TYPE (gst_rtcpsdes_type_get_type())
+GST_RTP_API
+GType gst_rtcpxr_type_get_type (void);
+#define GST_TYPE_RTCPXR_TYPE (gst_rtcpxr_type_get_type())
 
 /* enumerations from "gstrtpbuffer.h" */
 GST_RTP_API

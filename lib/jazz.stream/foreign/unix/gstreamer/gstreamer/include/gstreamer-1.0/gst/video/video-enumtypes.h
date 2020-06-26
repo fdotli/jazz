@@ -133,6 +133,11 @@ GST_VIDEO_API
 GType gst_video_field_order_get_type (void);
 #define GST_TYPE_VIDEO_FIELD_ORDER (gst_video_field_order_get_type())
 
+/* enumerations from "video-overlay-composition.h" */
+GST_VIDEO_API
+GType gst_video_overlay_format_flags_get_type (void);
+#define GST_TYPE_VIDEO_OVERLAY_FORMAT_FLAGS (gst_video_overlay_format_flags_get_type())
+
 /* enumerations from "video-resampler.h" */
 GST_VIDEO_API
 GType gst_video_resampler_method_get_type (void);

@@ -91,6 +91,28 @@
  */
 /* #undef GST_DISABLE_REGISTRY */
 
+/**
+ * GST_DISABLE_CAST_CHECKS:
+ *
+ * Disable run-time GObject cast checks
+ */
+#define GST_DISABLE_CAST_CHECKS 0
+
+/**
+ * GST_DISABLE_GLIB_ASSERTS:
+ *
+ * Disable GLib assertion
+ */
+#define GST_DISABLE_GLIB_ASSERTS 0
+
+/**
+ * GST_DISABLE_GLIB_CHECKS:
+ *
+ * Disable GLib checks such as API guards
+ */
+#define GST_DISABLE_GLIB_CHECKS 0
+
+
 /* FIXME: test and document these! */
 /* Configures the use of external plugins */
 /* #undef GST_DISABLE_PLUGIN */
@@ -155,8 +177,18 @@
 # endif
 #endif
 
+#if defined(_MSC_VER) && !defined(GST_STATIC_COMPILATION)
+# define GST_API_IMPORT __declspec(dllimport) extern
+#else
+# define GST_API_IMPORT extern
+#endif
+
 #ifndef GST_API
-#define GST_API GST_EXPORT
+# ifdef BUILDING_GST
+#  define GST_API GST_API_EXPORT        /* from config.h */
+# else
+#  define GST_API GST_API_IMPORT
+# endif
 #endif
 
 /* These macros are used to mark deprecated functions in GStreamer headers,

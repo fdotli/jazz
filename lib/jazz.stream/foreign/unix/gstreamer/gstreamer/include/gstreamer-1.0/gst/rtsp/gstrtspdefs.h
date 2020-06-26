@@ -332,14 +332,18 @@ typedef enum {
 
   GST_RTSP_HDR_RTCP_INTERVAL,       /* RTCP-Interval */
 
-  /* Since 1.4 */
+  /* Since: 1.4 */
   GST_RTSP_HDR_KEYMGMT,             /* KeyMgmt */
 
-  /* Since 1.14 */
+  /* Since: 1.14 */
   GST_RTSP_HDR_PIPELINED_REQUESTS,  /* Pipelined-Requests Rr     opt.      SETUP */
   GST_RTSP_HDR_MEDIA_PROPERTIES,    /* Media-Properties   Rr     opt.      SETUP */
   GST_RTSP_HDR_SEEK_STYLE,          /* Seek-Type          Rr     opt.      PLAY */
   GST_RTSP_HDR_ACCEPT_RANGES,       /* Accept-Ranges      Rr     opt.      SETUP, GET_PARAMETER */
+
+  /* Onvif extensions */
+  GST_RTSP_HDR_FRAMES,              /* Frames             Rr     opt.      PLAY */
+  GST_RTSP_HDR_RATE_CONTROL,        /* Rate-control       Rr     opt.      PLAY */
 
   GST_RTSP_HDR_LAST
 } GstRTSPHeaderField;
@@ -436,6 +440,13 @@ gchar *            gst_rtsp_generate_digest_auth_response (const gchar *algorith
                                                            const gchar *password,
                                                            const gchar *uri,
                                                            const gchar *nonce);
+
+GST_RTSP_API
+gchar *            gst_rtsp_generate_digest_auth_response_from_md5 (const gchar *algorithm,
+                                                                    const gchar * method,
+                                                                    const gchar * md5,
+                                                                    const gchar * uri,
+                                                                    const gchar * nonce);
 
 G_END_DECLS
 
