@@ -66,6 +66,10 @@ cpplugin gstreamer-1.0/libgstwavparse
 cpplugin gstreamer-1.0/libgstx264
 cpplugin gstreamer-1.0/libgstximagesrc
 
+cpshared libavcodec.so 58
+cpshared libavfilter.so 7
+cpshared libavformat.so 58
+cpshared libavutil.so 56
 cpshared libffi.so 7
 cpshared libgio-2.0.so 0
 cpshared libglib-2.0.so 0
@@ -89,6 +93,7 @@ cpshared libjpeg.so 8
 #cpshared liblzma.so 5
 cpshared libogg.so 0
 cpshared libpng16.so 16
+cpshared libswresample.so 3
 cpshared libvorbis.so 0
 cpshared libvorbisenc.so 2
 cpshared libx264.so 157
