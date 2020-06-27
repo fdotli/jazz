@@ -3,7 +3,6 @@
 GSTREAMER_LIB="/home/cartier/Devel/gstreamer/cerbero/build/dist/linux_x86_64/lib"
 GSTREAMER_LIBEXEC="/home/cartier/Devel/gstreamer/cerbero/build/dist/linux_x86_64/libexec"
 GSTREAMER_INCLUDE="/home/cartier/Devel/gstreamer/cerbero/build/dist/linux_x86_64/include"
-GLIB_INCLUDE="/usr/include/glib-2.0"
 
 if [ -d gstreamer ]; then
   rm -r gstreamer
@@ -109,7 +108,7 @@ mkdir gstreamer/libexec
 mkdir gstreamer/libexec/gstreamer-1.0
 echo Copying gst-plugin-scanner
 cp $GSTREAMER_LIBEXEC/gstreamer-1.0/gst-plugin-scanner gstreamer/libexec/gstreamer-1.0
-patchelf --set-rpath '$ORIGIN/../../../lib/gstreamer-1.0' gstreamer/libexec/gstreamer-1.0/gst-plugin-scanner
+patchelf --set-rpath '$ORIGIN/../../lib' gstreamer/libexec/gstreamer-1.0/gst-plugin-scanner
 
 
 #
