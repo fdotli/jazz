@@ -165,6 +165,7 @@ G_END_DECLS
 
 #include <gst/video/colorbalancechannel.h>
 #include <gst/video/colorbalance.h>
+#include <gst/video/gstvideoaggregator.h>
 #include <gst/video/gstvideodecoder.h>
 #include <gst/video/gstvideoencoder.h>
 #include <gst/video/gstvideofilter.h>
@@ -182,5 +183,6 @@ G_END_DECLS
 #include <gst/video/gstvideotimecode.h>
 #include <gst/video/gstvideoaffinetransformationmeta.h>
 #include <gst/video/video-anc.h>
+#include <gst/video/video-hdr.h>
 
 #endif /* __GST_VIDEO_H__ */

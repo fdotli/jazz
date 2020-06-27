@@ -6,6 +6,7 @@
 
 #include <glib-object.h>
 #include <gst/validate/validate.h>
+#include <gst/validate/media-descriptor-writer.h>
 
 G_BEGIN_DECLS
 
@@ -20,6 +21,8 @@ GST_VALIDATE_API GType gst_validate_debug_flags_get_type (void);
 #define GST_TYPE_VALIDATE_DEBUG_FLAGS (gst_validate_debug_flags_get_type ())
 GST_VALIDATE_API GType gst_validate_report_level_get_type (void);
 #define GST_TYPE_VALIDATE_REPORT_LEVEL (gst_validate_report_level_get_type ())
+GST_VALIDATE_API GType gst_validate_issue_flags_get_type (void);
+#define GST_TYPE_VALIDATE_ISSUE_FLAGS (gst_validate_issue_flags_get_type ())
 
 /* enumerations from "gst-validate-reporter.h" */
 GST_VALIDATE_API GType gst_validate_interception_return_get_type (void);
@@ -30,6 +33,10 @@ GST_VALIDATE_API GType gst_validate_action_return_get_type (void);
 #define GST_TYPE_VALIDATE_ACTION_RETURN (gst_validate_action_return_get_type ())
 GST_VALIDATE_API GType gst_validate_action_type_flags_get_type (void);
 #define GST_TYPE_VALIDATE_ACTION_TYPE_FLAGS (gst_validate_action_type_flags_get_type ())
+
+/* enumerations from "media-descriptor-writer.h" */
+GST_VALIDATE_API GType gst_validate_media_descriptor_writer_flags_get_type (void);
+#define GST_TYPE_VALIDATE_MEDIA_DESCRIPTOR_WRITER_FLAGS (gst_validate_media_descriptor_writer_flags_get_type ())
 G_END_DECLS
 
 #endif /* __GST_ENUM_TYPES_H__ */

@@ -65,20 +65,20 @@ G_STMT_START { \
 /**
  * GstRTSPResult:
  * @GST_RTSP_OK: no error
- * @GST_RTSP_ERROR: some unspecified error occured
+ * @GST_RTSP_ERROR: some unspecified error occurred
  * @GST_RTSP_EINVAL: invalid arguments were provided to a function
  * @GST_RTSP_EINTR: an operation was canceled
  * @GST_RTSP_ENOMEM: no memory was available for the operation
- * @GST_RTSP_ERESOLV: a host resolve error occured
+ * @GST_RTSP_ERESOLV: a host resolve error occurred
  * @GST_RTSP_ENOTIMPL: function not implemented
- * @GST_RTSP_ESYS: a system error occured, errno contains more details
- * @GST_RTSP_EPARSE: a parsing error occured
+ * @GST_RTSP_ESYS: a system error occurred, errno contains more details
+ * @GST_RTSP_EPARSE: a parsing error occurred
  * @GST_RTSP_EWSASTART: windows networking could not start
  * @GST_RTSP_EWSAVERSION: windows networking stack has wrong version
  * @GST_RTSP_EEOF: end-of-file was reached
- * @GST_RTSP_ENET: a network problem occured, h_errno contains more details
+ * @GST_RTSP_ENET: a network problem occurred, h_errno contains more details
  * @GST_RTSP_ENOTIP: the host is not an IP host
- * @GST_RTSP_ETIMEOUT: a timeout occured
+ * @GST_RTSP_ETIMEOUT: a timeout occurred
  * @GST_RTSP_ETGET: the tunnel GET request has been performed
  * @GST_RTSP_ETPOST: the tunnel POST request has been performed
  * @GST_RTSP_ELAST: last error
@@ -267,7 +267,7 @@ typedef enum {
   GST_RTSP_HDR_PROXY_REQUIRE,       /* Proxy-Require        R      req.      all */
   GST_RTSP_HDR_PUBLIC,              /* Public               r      opt.      all */
   GST_RTSP_HDR_RANGE,               /* Range                Rr     opt.      PLAY, PAUSE, RECORD */
-  GST_RTSP_HDR_REFERER,             /* Referer              R      opt.      all */
+  GST_RTSP_HDR_REFERER,             /* Referrer              R      opt.      all */
   GST_RTSP_HDR_REQUIRE,             /* Require              R      req.      all */
   GST_RTSP_HDR_RETRY_AFTER,         /* Retry-After          r      opt.      all */
   GST_RTSP_HDR_RTP_INFO,            /* RTP-Info             r      req.      PLAY */
@@ -332,14 +332,18 @@ typedef enum {
 
   GST_RTSP_HDR_RTCP_INTERVAL,       /* RTCP-Interval */
 
-  /* Since 1.4 */
+  /* Since: 1.4 */
   GST_RTSP_HDR_KEYMGMT,             /* KeyMgmt */
 
-  /* Since 1.14 */
+  /* Since: 1.14 */
   GST_RTSP_HDR_PIPELINED_REQUESTS,  /* Pipelined-Requests Rr     opt.      SETUP */
   GST_RTSP_HDR_MEDIA_PROPERTIES,    /* Media-Properties   Rr     opt.      SETUP */
   GST_RTSP_HDR_SEEK_STYLE,          /* Seek-Type          Rr     opt.      PLAY */
   GST_RTSP_HDR_ACCEPT_RANGES,       /* Accept-Ranges      Rr     opt.      SETUP, GET_PARAMETER */
+
+  /* Onvif extensions */
+  GST_RTSP_HDR_FRAMES,              /* Frames             Rr     opt.      PLAY */
+  GST_RTSP_HDR_RATE_CONTROL,        /* Rate-control       Rr     opt.      PLAY */
 
   GST_RTSP_HDR_LAST
 } GstRTSPHeaderField;
@@ -436,6 +440,13 @@ gchar *            gst_rtsp_generate_digest_auth_response (const gchar *algorith
                                                            const gchar *password,
                                                            const gchar *uri,
                                                            const gchar *nonce);
+
+GST_RTSP_API
+gchar *            gst_rtsp_generate_digest_auth_response_from_md5 (const gchar *algorithm,
+                                                                    const gchar * method,
+                                                                    const gchar * md5,
+                                                                    const gchar * uri,
+                                                                    const gchar * nonce);
 
 G_END_DECLS
 

@@ -25,8 +25,6 @@
 
 G_BEGIN_DECLS
 
-typedef struct _GstGLAsyncDebug GstGLAsyncDebug;
-
 typedef gchar * (*GstGLAsyncDebugLogGetMessage) (gpointer user_data);
 
 /**
@@ -37,7 +35,7 @@ typedef gchar * (*GstGLAsyncDebugLogGetMessage) (gpointer user_data);
  */
 struct _GstGLAsyncDebug
 {
-  /* <private> */
+  /*< private >*/
   guint             state_flags;
   GstDebugCategory *cat;
   GstDebugLevel     level;
@@ -47,7 +45,7 @@ struct _GstGLAsyncDebug
   GObject          *object;
   gchar            *debug_msg;
 
-  /* <protected> */
+  /*< protected >*/
   GstGLAsyncDebugLogGetMessage callback;
   gpointer          user_data;
   GDestroyNotify    notify;
@@ -72,7 +70,7 @@ void                gst_gl_async_debug_thaw                     (GstGLAsyncDebug
  * GST_GL_ASYNC_CAT_LEVEL_LOG_valist:
  * @ad: the #GstGLAsyncDebug to store the message in
  * @cat: the #GstDebugCategory to output the message in
- * @level: the #GstLevel
+ * @level: the #GstDebugLevel
  * @object: (allow-none): a #GObject to associate with the debug message
  * @format: a printf style format string
  * @varargs: the list of arguments for @format
@@ -87,14 +85,14 @@ void                gst_gl_async_debug_thaw                     (GstGLAsyncDebug
  * GST_GL_ASYNC_CAT_LEVEL_LOG:
  * @ad: the #GstGLAsyncDebug to store the message in
  * @cat: the #GstDebugCategory to output the message in
- * @level: the #GstLevel
+ * @level: the #GstDebugLevel
  * @object: (allow-none): a #GObject to associate with the debug message
  * @format: a printf style format string
  * @...: the list of arguments for @format
  *
  * Stores a debug message in @ad for later output
  */
-#if G_HAVE_ISO_VARARGS
+#ifdef G_HAVE_ISO_VARARGS
 #define GST_GL_ASYNC_CAT_LEVEL_LOG(ad,cat,level,object,format,...)              \
     gst_gl_async_debug_store_log_msg (ad, cat, level, __FILE__, GST_FUNCTION,   \
         __LINE__, object, format, __VA_ARGS__)
@@ -149,7 +147,7 @@ void        gst_gl_async_debug_store_log_msg_valist (GstGLAsyncDebug * ad,
 #define gst_gl_async_debug_output_log_msg(ad) G_STMT_START{ }G_STMT_END
 #define gst_gl_async_debug_store_log_msg_valist(ad,cat,level,file,function,line,object,format,args) G_STMT_START{ }G_STMT_END
 
-#if G_HAVE_ISO_VARARGS
+#ifdef G_HAVE_ISO_VARARGS
 
 #define gst_gl_insert_debug_marker(...) G_STMT_START{ }G_STMT_END
 #define gst_gl_async_debug_store_log_msg(...) G_STMT_START{ }G_STMT_END

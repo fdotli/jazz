@@ -25,7 +25,20 @@
 #include <gst/gst.h>
 
 #ifndef GST_RTSP_SERVER_API
-#define GST_RTSP_SERVER_API GST_EXPORT
+# ifdef BUILDING_GST_RTSP_SERVER
+#  define GST_RTSP_SERVER_API GST_API_EXPORT         /* from config.h */
+# else
+#  define GST_RTSP_SERVER_API GST_API_IMPORT
+# endif
+#endif
+
+/* Do *not* use these defines outside of rtsp-server. Use G_DEPRECATED instead. */
+#ifdef GST_DISABLE_DEPRECATED
+#define GST_RTSP_SERVER_DEPRECATED GST_RTSP_SERVER_API
+#define GST_RTSP_SERVER_DEPRECATED_FOR(f) GST_RTSP_SERVER_API
+#else
+#define GST_RTSP_SERVER_DEPRECATED G_DEPRECATED GST_RTSP_SERVER_API
+#define GST_RTSP_SERVER_DEPRECATED_FOR(f) G_DEPRECATED_FOR(f) GST_RTSP_SERVER_API
 #endif
 
 #endif /* __GST_RTSP_SERVER_PRELUDE_H__ */

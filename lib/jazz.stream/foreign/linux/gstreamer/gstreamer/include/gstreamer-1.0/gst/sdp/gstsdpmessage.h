@@ -340,6 +340,9 @@ GstSDPResult            gst_sdp_message_parse_buffer        (const guint8 *data,
 GST_SDP_API
 gchar*                  gst_sdp_message_as_text             (const GstSDPMessage *msg);
 
+GST_SDP_API
+GstSDPResult            gst_sdp_message_new_from_text       (const gchar *text, GstSDPMessage ** msg);
+
 /* convert from/to uri */
 
 GST_SDP_API
@@ -752,9 +755,7 @@ GstSDPResult            gst_sdp_message_attributes_to_caps  (const GstSDPMessage
 GST_SDP_API
 GstSDPResult            gst_sdp_media_attributes_to_caps    (const GstSDPMedia *media, GstCaps *caps);
 
-#ifdef G_DEFINE_AUTOPTR_CLEANUP_FUNC
 G_DEFINE_AUTOPTR_CLEANUP_FUNC(GstSDPMessage, gst_sdp_message_free)
-#endif
 
 G_END_DECLS
 

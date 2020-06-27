@@ -199,6 +199,11 @@ gboolean          gst_rtsp_stream_get_rtpinfo      (GstRTSPStream *stream,
                                                     GstClockTime *running_time);
 
 GST_RTSP_SERVER_API
+gboolean          gst_rtsp_stream_get_rates        (GstRTSPStream * stream,
+                                                    gdouble * rate,
+                                                    gdouble * applied_rate);
+
+GST_RTSP_SERVER_API
 GstCaps *         gst_rtsp_stream_get_caps         (GstRTSPStream *stream);
 
 GST_RTSP_SERVER_API
@@ -232,6 +237,16 @@ GSocket *         gst_rtsp_stream_get_rtp_multicast_socket (GstRTSPStream *strea
 GST_RTSP_SERVER_API
 GSocket *         gst_rtsp_stream_get_rtcp_multicast_socket (GstRTSPStream *stream,
                                                              GSocketFamily family);
+
+GST_RTSP_SERVER_API
+gboolean          gst_rtsp_stream_add_multicast_client_address (GstRTSPStream * stream,
+                                                                const gchar * destination,
+                                                                guint rtp_port,
+                                                                guint rtcp_port,
+                                                                GSocketFamily family);
+
+GST_RTSP_SERVER_API
+gchar *           gst_rtsp_stream_get_multicast_client_addresses (GstRTSPStream * stream);
 
 GST_RTSP_SERVER_API
 gboolean          gst_rtsp_stream_update_crypto    (GstRTSPStream * stream,
@@ -293,6 +308,21 @@ GST_RTSP_SERVER_API
 GstRTSPPublishClockMode gst_rtsp_stream_get_publish_clock_mode (GstRTSPStream * stream);
 
 GST_RTSP_SERVER_API
+gboolean                gst_rtsp_stream_set_max_mcast_ttl  (GstRTSPStream *stream, guint ttl);
+
+GST_RTSP_SERVER_API
+guint             gst_rtsp_stream_get_max_mcast_ttl  (GstRTSPStream *stream);
+
+GST_RTSP_SERVER_API
+gboolean          gst_rtsp_stream_verify_mcast_ttl  (GstRTSPStream *stream, guint ttl);
+
+GST_RTSP_SERVER_API
+void              gst_rtsp_stream_set_bind_mcast_address  (GstRTSPStream * stream, gboolean bind_mcast_addr);
+
+GST_RTSP_SERVER_API
+gboolean          gst_rtsp_stream_is_bind_mcast_address (GstRTSPStream * stream);
+
+GST_RTSP_SERVER_API
 gboolean          gst_rtsp_stream_complete_stream (GstRTSPStream * stream, const GstRTSPTransport * transport);
 
 GST_RTSP_SERVER_API
@@ -328,6 +358,12 @@ void               gst_rtsp_stream_set_ulpfec_percentage (GstRTSPStream *stream,
 
 GST_RTSP_SERVER_API
 guint              gst_rtsp_stream_get_ulpfec_percentage (GstRTSPStream *stream);
+
+GST_RTSP_SERVER_API
+void               gst_rtsp_stream_set_rate_control (GstRTSPStream * stream, gboolean enabled);
+
+GST_RTSP_SERVER_API
+gboolean           gst_rtsp_stream_get_rate_control (GstRTSPStream * stream);
 
 /**
  * GstRTSPStreamTransportFilterFunc:

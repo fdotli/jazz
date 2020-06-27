@@ -27,7 +27,7 @@
 
 typedef struct _GstValidateOverride GstValidateOverride;
 typedef struct _GstValidateOverrideClass GstValidateOverrideClass;
-typedef struct _GstValidateOverridePriv GstValidateOverridePriv;
+typedef struct _GstValidateOverridePrivate GstValidateOverridePrivate;
 
 
 #include <gst/validate/gst-validate-report.h>
@@ -56,6 +56,7 @@ struct _GstValidateOverrideClass
   gboolean (*can_attach)(GstValidateOverride * override,
       GstValidateMonitor * monitor);
 
+  void (*attached)(GstValidateOverride * override);
 };
 
 struct _GstValidateOverride
@@ -71,7 +72,7 @@ struct _GstValidateOverride
   GstValidateOverrideElementAddedHandler element_added_handler;
 
   /*<private>*/
-  GstValidateOverridePriv *priv;
+  GstValidateOverridePrivate *priv;
 };
 
 GST_VALIDATE_API
@@ -89,6 +90,9 @@ GST_VALIDATE_API
 GstValidateOverride *    gst_validate_override_new (void);
 
 void               gst_validate_override_free (GstValidateOverride * override);
+
+G_DEFINE_AUTOPTR_CLEANUP_FUNC(GstValidateOverride, gst_validate_override_free)
+
 GST_VALIDATE_API
 void               gst_validate_override_change_severity (GstValidateOverride * override, GstValidateIssueId issue_id, GstValidateReportLevel new_level);
 GST_VALIDATE_API
@@ -126,6 +130,9 @@ void               gst_validate_override_set_element_added_handler (GstValidateO
 
 GST_VALIDATE_API
 gboolean           gst_validate_override_can_attach (GstValidateOverride * override, GstValidateMonitor *monitor);
+
+GST_VALIDATE_API
+void           gst_validate_override_attached (GstValidateOverride * override);
 
 G_END_DECLS
 

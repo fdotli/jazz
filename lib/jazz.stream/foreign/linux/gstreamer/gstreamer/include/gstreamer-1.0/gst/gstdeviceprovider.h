@@ -162,14 +162,17 @@ GST_API
 const gchar * gst_device_provider_class_get_metadata       (GstDeviceProviderClass * klass,
                                                             const gchar * key);
 
+GST_API
+void gst_device_provider_device_changed                    (GstDeviceProvider * provider,
+                                                            GstDevice *device,
+                                                            GstDevice *changed_device);
+
 /* factory management */
 
 GST_API
 GstDeviceProviderFactory * gst_device_provider_get_factory (GstDeviceProvider * provider);
 
-#ifdef G_DEFINE_AUTOPTR_CLEANUP_FUNC
 G_DEFINE_AUTOPTR_CLEANUP_FUNC(GstDeviceProvider, gst_object_unref)
-#endif
 
 G_END_DECLS
 

@@ -85,13 +85,21 @@ G_BEGIN_DECLS
  *               texture components
  * @GST_GL_RGB565: Three components of bit depth 5, 6 and 5 stored in the R, G,
  *                 and B texture components respectively.
+ * @GST_GL_RGB16: Three 16-bit components stored in the R, G, and B
+ *               texture components
  * @GST_GL_RGBA: Four components stored in the R, G, B, and A texture
  *               components respectively.
  * @GST_GL_RGBA8: Four 8-bit components stored in the R, G, B, and A texture
  *                components respectively.
+ * @GST_GL_RGBA16: Four 16-bit components stored in the R, G, B, and A texture
+ *                components respectively.
  * @GST_GL_DEPTH_COMPONENT16: A single 16-bit component for depth information.
  * @GST_GL_DEPTH24_STENCIL8: A 24-bit component for depth information and
  *                           a 8-bit component for stencil informat.
+ * @GST_GL_RGBA10_A2: Four components of bit depth 10, 10, 10 and 2 stored in the
+ *                    R, G, B and A texture components respectively.
+ * @GST_GL_R16: Single 16-bit component stored in the R texture component
+ * @GST_GL_RG16: Two 16-bit components stored in the R and G texture components
  */
 typedef enum
 {
@@ -111,13 +119,20 @@ typedef enum
   GST_GL_RGB                            = 0x1907,
   GST_GL_RGB8                           = 0x8051,
   GST_GL_RGB565                         = 0x8D62,
+  GST_GL_RGB16                          = 0x8054,
 
   GST_GL_RGBA                           = 0x1908,
   GST_GL_RGBA8                          = 0x8058,
+  GST_GL_RGBA16                         = 0x805B,
 
   GST_GL_DEPTH_COMPONENT16              = 0x81A5,
 
   GST_GL_DEPTH24_STENCIL8               = 0x88F0,
+
+  GST_GL_RGB10_A2                       = 0x8059,
+
+  GST_GL_R16                            = 0x822A,
+  GST_GL_RG16                           = 0x822C,
 } GstGLFormat;
 
 GST_GL_API
@@ -131,6 +146,14 @@ GST_GL_API
 guint                   gst_gl_sized_gl_format_from_gl_format_type  (GstGLContext * context,
                                                                      guint format,
                                                                      guint type);
+GST_GL_API
+void                    gst_gl_format_type_from_sized_gl_format     (GstGLFormat format,
+                                                                     GstGLFormat * unsized_format,
+                                                                     guint * gl_type);
+
+GST_GL_API
+gboolean                gst_gl_format_is_supported                  (GstGLContext * context,
+                                                                     GstGLFormat format);
 
 GST_GL_API
 GstGLTextureTarget      gst_gl_texture_target_from_string           (const gchar * str);

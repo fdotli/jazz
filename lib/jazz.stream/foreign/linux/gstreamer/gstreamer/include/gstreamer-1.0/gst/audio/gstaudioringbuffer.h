@@ -60,7 +60,7 @@ typedef void (*GstAudioRingBufferCallback) (GstAudioRingBuffer *rbuf, guint8* da
  * @GST_AUDIO_RING_BUFFER_STATE_STARTED: The ringbuffer is started
  * @GST_AUDIO_RING_BUFFER_STATE_ERROR: The ringbuffer has encountered an
  *     error after it has been started, e.g. because the device was
- *     disconnected (Since 1.2)
+ *     disconnected (Since: 1.2)
  *
  * The state of the ringbuffer.
  */
@@ -85,9 +85,9 @@ typedef enum {
  * @GST_AUDIO_RING_BUFFER_FORMAT_TYPE_DTS: samples in DTS format
  * @GST_AUDIO_RING_BUFFER_FORMAT_TYPE_MPEG2_AAC: samples in MPEG-2 AAC ADTS format
  * @GST_AUDIO_RING_BUFFER_FORMAT_TYPE_MPEG4_AAC: samples in MPEG-4 AAC ADTS format
- * @GST_AUDIO_RING_BUFFER_FORMAT_TYPE_MPEG2_AAC_RAW: samples in MPEG-2 AAC raw format (Since 1.12)
- * @GST_AUDIO_RING_BUFFER_FORMAT_TYPE_MPEG4_AAC_RAW: samples in MPEG-4 AAC raw format (Since 1.12)
- * @GST_AUDIO_RING_BUFFER_FORMAT_TYPE_FLAC: samples in FLAC format (Since 1.12)
+ * @GST_AUDIO_RING_BUFFER_FORMAT_TYPE_MPEG2_AAC_RAW: samples in MPEG-2 AAC raw format (Since: 1.12)
+ * @GST_AUDIO_RING_BUFFER_FORMAT_TYPE_MPEG4_AAC_RAW: samples in MPEG-4 AAC raw format (Since: 1.12)
+ * @GST_AUDIO_RING_BUFFER_FORMAT_TYPE_FLAC: samples in FLAC format (Since: 1.12)
  *
  * The format of the samples in the ringbuffer.
  */
@@ -234,7 +234,10 @@ struct _GstAudioRingBuffer {
  * @activate: activate the thread that starts pulling and monitoring the
  * consumed segments in the device.
  * @commit: write samples into the ringbuffer
- * @clear_all: clear the entire ringbuffer.
+ * @clear_all: Optional.
+ *             Clear the entire ringbuffer.
+ *             Subclasses should chain up to the parent implementation to
+ *             invoke the default handler.
  *
  * The vmethods that subclasses can override to implement the ringbuffer.
  */
@@ -404,9 +407,7 @@ void            gst_audio_ring_buffer_advance         (GstAudioRingBuffer *buf, 
 GST_AUDIO_API
 void            gst_audio_ring_buffer_may_start       (GstAudioRingBuffer *buf, gboolean allowed);
 
-#ifdef G_DEFINE_AUTOPTR_CLEANUP_FUNC
 G_DEFINE_AUTOPTR_CLEANUP_FUNC(GstAudioRingBuffer, gst_object_unref)
-#endif
 
 G_END_DECLS
 

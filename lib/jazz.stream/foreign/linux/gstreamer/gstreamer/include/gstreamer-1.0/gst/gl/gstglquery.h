@@ -46,7 +46,7 @@ typedef enum
  */
 struct _GstGLQuery
 {
-  /* <private> */
+  /*< private >*/
   GstGLContext *    context;
   guint             query_type;
   guint             query_id;
@@ -55,7 +55,6 @@ struct _GstGLQuery
   gboolean          start_called;
   GstGLAsyncDebug   debug;
 
-  /* <private> */
   gpointer          _padding[GST_PADDING];
 };
 
@@ -96,7 +95,7 @@ guint64             gst_gl_query_result             (GstGLQuery * query);
     gst_gl_async_debug_thaw (&(query)->debug); \
   } G_STMT_END
 
-#if G_HAVE_ISO_VARARGS
+#ifdef G_HAVE_ISO_VARARGS
 
 #define gst_gl_query_start_log(query,cat,level,object,format,...) \
   G_STMT_START {    \

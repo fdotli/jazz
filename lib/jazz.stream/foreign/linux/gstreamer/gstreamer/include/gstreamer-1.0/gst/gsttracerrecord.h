@@ -26,6 +26,13 @@
 
 G_BEGIN_DECLS
 
+/**
+ * GstTracerRecord:
+ *
+ * The opaque GstTracerRecord instance structure
+ *
+ * Since: 1.8
+ */
 typedef struct _GstTracerRecord GstTracerRecord;
 typedef struct _GstTracerRecordClass GstTracerRecordClass;
 
@@ -40,9 +47,7 @@ typedef struct _GstTracerRecordClass GstTracerRecordClass;
 GST_API
 GType gst_tracer_record_get_type          (void);
 
-#ifdef G_DEFINE_AUTOPTR_CLEANUP_FUNC
 G_DEFINE_AUTOPTR_CLEANUP_FUNC(GstTracerRecord, gst_object_unref)
-#endif
 
 /**
  * GstTracerValueScope:
@@ -51,7 +56,7 @@ G_DEFINE_AUTOPTR_CLEANUP_FUNC(GstTracerRecord, gst_object_unref)
  * @GST_TRACER_VALUE_SCOPE_ELEMENT: the value is related to an #GstElement
  * @GST_TRACER_VALUE_SCOPE_PAD: the value is related to a #GstPad
  *
- * Tracing record will contain fields that contain a meassured value or extra
+ * Tracing record will contain fields that contain a measured value or extra
  * meta-data. One such meta data are values that tell where a measurement was
  * taken. This enumerating declares to which scope such a meta data field
  * relates to. If it is e.g. %GST_TRACER_VALUE_SCOPE_PAD, then each of the log

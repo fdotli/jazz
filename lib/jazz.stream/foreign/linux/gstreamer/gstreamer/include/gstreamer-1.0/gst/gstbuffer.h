@@ -194,8 +194,8 @@ typedef struct _GstBufferPool GstBufferPool;
  *                                 and this buffer is a good point to resynchronize.
  * @GST_BUFFER_FLAG_CORRUPTED:     the buffer data is corrupted.
  * @GST_BUFFER_FLAG_MARKER:        the buffer contains a media specific marker. for
- *                                 video this is typically the end of a frame boundary, for audio
- *                                 this is usually the start of a talkspurt.
+ *                                 video this is the end of a frame boundary, for audio
+ *                                 this is the start of a talkspurt.
  * @GST_BUFFER_FLAG_HEADER:        the buffer contains header information that is
  *                                 needed to decode the following data.
  * @GST_BUFFER_FLAG_GAP:           the buffer has been created to fill a gap in the
@@ -208,13 +208,13 @@ typedef struct _GstBufferPool GstBufferPool;
  * @GST_BUFFER_FLAG_TAG_MEMORY:    this flag is set when memory of the buffer
  *                                 is added/removed
  * @GST_BUFFER_FLAG_SYNC_AFTER:    Elements which write to disk or permanent
- * 				 storage should ensure the data is synced after
- * 				 writing the contents of this buffer. (Since 1.6)
+ *                                 storage should ensure the data is synced after
+ *                                 writing the contents of this buffer. (Since: 1.6)
  * @GST_BUFFER_FLAG_NON_DROPPABLE: This buffer is important and should not be dropped.
  *                                 This can be used to mark important buffers, e.g. to flag
  *                                 RTP packets carrying keyframes or codec setup data for RTP
  *                                 Forward Error Correction purposes, or to prevent still video
- *                                 frames from being dropped by elements due to QoS. (Since 1.14)
+ *                                 frames from being dropped by elements due to QoS. (Since: 1.14)
  * @GST_BUFFER_FLAG_LAST:          additional media specific flags can be added starting from
  *                                 this flag.
  *
@@ -297,6 +297,8 @@ GstBuffer * gst_buffer_new_wrapped_full    (GstMemoryFlags flags, gpointer data,
                                             GDestroyNotify notify);
 GST_API
 GstBuffer * gst_buffer_new_wrapped         (gpointer data, gsize size);
+GST_API
+GstBuffer * gst_buffer_new_wrapped_bytes   (GBytes * bytes);
 
 /* memory blocks */
 
@@ -410,7 +412,7 @@ gboolean       gst_buffer_unset_flags      (GstBuffer * buffer, GstBufferFlags f
 
 /* refcounting */
 /**
- * gst_buffer_ref:
+ * gst_buffer_ref: (skip)
  * @buf: a #GstBuffer.
  *
  * Increases the refcount of the given buffer by one.
@@ -423,6 +425,7 @@ gboolean       gst_buffer_unset_flags      (GstBuffer * buffer, GstBufferFlags f
  *
  * Returns: (transfer full): @buf
  */
+static inline GstBuffer* gst_buffer_ref(GstBuffer* buf);
 static inline GstBuffer *
 gst_buffer_ref (GstBuffer * buf)
 {
@@ -430,21 +433,41 @@ gst_buffer_ref (GstBuffer * buf)
 }
 
 /**
- * gst_buffer_unref:
+ * gst_buffer_unref: (skip)
  * @buf: (transfer full): a #GstBuffer.
  *
  * Decreases the refcount of the buffer. If the refcount reaches 0, the buffer
  * with the associated metadata and memory will be freed.
  */
+static inline void gst_buffer_unref(GstBuffer* buf);
 static inline void
 gst_buffer_unref (GstBuffer * buf)
 {
   gst_mini_object_unref (GST_MINI_OBJECT_CAST (buf));
 }
 
+/**
+ * gst_clear_buffer: (skip)
+ * @buf_ptr: a pointer to a #GstBuffer reference
+ *
+ * Clears a reference to a #GstBuffer.
+ *
+ * @buf_ptr must not be %NULL.
+ *
+ * If the reference is %NULL then this function does nothing. Otherwise, the
+ * reference count of the buffer is decreased and the pointer is set to %NULL.
+ *
+ * Since: 1.16
+ */
+static inline void
+gst_clear_buffer (GstBuffer ** buf_ptr)
+{
+  gst_clear_mini_object ((GstMiniObject **) buf_ptr);
+}
+
 /* copy buffer */
 /**
- * gst_buffer_copy:
+ * gst_buffer_copy: (skip)
  * @buf: a #GstBuffer.
  *
  * Create a copy of the given buffer. This will only copy the buffer's
@@ -455,6 +478,7 @@ gst_buffer_unref (GstBuffer * buf)
  *
  * Returns: (transfer full): a new copy of @buf.
  */
+static inline GstBuffer* gst_buffer_copy(const GstBuffer* buf);
 static inline GstBuffer *
 gst_buffer_copy (const GstBuffer * buf)
 {
@@ -479,7 +503,7 @@ GstBuffer * gst_buffer_copy_deep (const GstBuffer * buf);
  * @GST_BUFFER_COPY_META: flag indicating that buffer meta should be
  *   copied
  * @GST_BUFFER_COPY_DEEP: flag indicating that memory should always be
- *   copied instead of reffed (Since 1.2)
+ *   copied instead of reffed (Since: 1.2)
  *
  * A set of flags that can be provided to the gst_buffer_copy_into()
  * function to specify which items should be copied.
@@ -556,7 +580,7 @@ gboolean        gst_buffer_copy_into            (GstBuffer *dest, GstBuffer *src
 #define         gst_buffer_make_writable(buf)   GST_BUFFER_CAST (gst_mini_object_make_writable (GST_MINI_OBJECT_CAST (buf)))
 
 /**
- * gst_buffer_replace:
+ * gst_buffer_replace: (skip)
  * @obuf: (inout) (transfer full) (nullable): pointer to a pointer to
  *     a #GstBuffer to be replaced.
  * @nbuf: (transfer none) (allow-none): pointer to a #GstBuffer that will
@@ -571,6 +595,7 @@ gboolean        gst_buffer_copy_into            (GstBuffer *dest, GstBuffer *src
  *
  * Returns: %TRUE when @obuf was different from @nbuf.
  */
+static inline gboolean gst_buffer_replace(GstBuffer** obuf, GstBuffer* nbuf);
 static inline gboolean
 gst_buffer_replace (GstBuffer **obuf, GstBuffer *nbuf)
 {
@@ -771,13 +796,9 @@ GST_API
 GstReferenceTimestampMeta * gst_buffer_get_reference_timestamp_meta (GstBuffer * buffer,
                                                                      GstCaps   * reference);
 
-#ifdef G_DEFINE_AUTOPTR_CLEANUP_FUNC
 G_DEFINE_AUTOPTR_CLEANUP_FUNC(GstBuffer, gst_buffer_unref)
-#endif
 
-#ifdef G_DEFINE_AUTOPTR_CLEANUP_FUNC
 G_DEFINE_AUTOPTR_CLEANUP_FUNC(GstBufferPool, gst_object_unref)
-#endif
 
 G_END_DECLS
 

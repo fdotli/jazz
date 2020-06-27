@@ -78,10 +78,9 @@ const GstToc*            gst_discoverer_stream_info_get_toc(GstDiscovererStreamI
 GST_PBUTILS_API
 const gchar*             gst_discoverer_stream_info_get_stream_id(GstDiscovererStreamInfo* info);
 
-#ifndef GST_DISABLE_DEPRECATED
-GST_PBUTILS_API
+GST_PBUTILS_DEPRECATED_FOR(gst_discoverer_info_get_missing_elements_installer_details)
 const GstStructure*      gst_discoverer_stream_info_get_misc(GstDiscovererStreamInfo* info);
-#endif
+
 GST_PBUTILS_API
 const gchar *            gst_discoverer_stream_info_get_stream_type_nick(GstDiscovererStreamInfo* info);
 
@@ -304,10 +303,8 @@ gboolean                  gst_discoverer_info_get_seekable(const GstDiscovererIn
 GST_PBUTILS_API
 gboolean                  gst_discoverer_info_get_live(const GstDiscovererInfo* info);
 
-#ifndef GST_DISABLE_DEPRECATED
-GST_PBUTILS_API
+GST_PBUTILS_DEPRECATED_FOR(gst_discoverer_info_get_missing_elements_installer_details)
 const GstStructure*       gst_discoverer_info_get_misc(const GstDiscovererInfo* info);
-#endif
 
 GST_PBUTILS_API
 const GstTagList*         gst_discoverer_info_get_tags(const GstDiscovererInfo* info); 
@@ -413,33 +410,19 @@ gst_discoverer_discover_uri (GstDiscoverer * discoverer,
 			     const gchar * uri,
 			     GError ** err);
 
-#ifdef G_DEFINE_AUTOPTR_CLEANUP_FUNC
 G_DEFINE_AUTOPTR_CLEANUP_FUNC(GstDiscoverer, gst_object_unref)
-#endif
 
-#ifdef G_DEFINE_AUTOPTR_CLEANUP_FUNC
 G_DEFINE_AUTOPTR_CLEANUP_FUNC(GstDiscovererAudioInfo, gst_object_unref)
-#endif
 
-#ifdef G_DEFINE_AUTOPTR_CLEANUP_FUNC
 G_DEFINE_AUTOPTR_CLEANUP_FUNC(GstDiscovererContainerInfo, gst_object_unref)
-#endif
 
-#ifdef G_DEFINE_AUTOPTR_CLEANUP_FUNC
 G_DEFINE_AUTOPTR_CLEANUP_FUNC(GstDiscovererInfo, gst_object_unref)
-#endif
 
-#ifdef G_DEFINE_AUTOPTR_CLEANUP_FUNC
 G_DEFINE_AUTOPTR_CLEANUP_FUNC(GstDiscovererStreamInfo, gst_object_unref)
-#endif
 
-#ifdef G_DEFINE_AUTOPTR_CLEANUP_FUNC
 G_DEFINE_AUTOPTR_CLEANUP_FUNC(GstDiscovererSubtitleInfo, gst_object_unref)
-#endif
 
-#ifdef G_DEFINE_AUTOPTR_CLEANUP_FUNC
 G_DEFINE_AUTOPTR_CLEANUP_FUNC(GstDiscovererVideoInfo, gst_object_unref)
-#endif
 
 G_END_DECLS
 

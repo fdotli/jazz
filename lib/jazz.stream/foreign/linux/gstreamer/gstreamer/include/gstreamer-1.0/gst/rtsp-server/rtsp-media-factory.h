@@ -239,6 +239,25 @@ void                    gst_rtsp_media_factory_set_publish_clock_mode (GstRTSPMe
 GST_RTSP_SERVER_API
 GstRTSPPublishClockMode gst_rtsp_media_factory_get_publish_clock_mode (GstRTSPMediaFactory * factory);
 
+GST_RTSP_SERVER_API
+gboolean                gst_rtsp_media_factory_set_max_mcast_ttl (GstRTSPMediaFactory * factory,
+                                                                  guint                 ttl);
+
+GST_RTSP_SERVER_API
+guint                 gst_rtsp_media_factory_get_max_mcast_ttl (GstRTSPMediaFactory * factory);
+
+GST_RTSP_SERVER_API
+void                  gst_rtsp_media_factory_set_bind_mcast_address (GstRTSPMediaFactory * factory,
+                                                                     gboolean bind_mcast_addr);
+GST_RTSP_SERVER_API
+gboolean              gst_rtsp_media_factory_is_bind_mcast_address (GstRTSPMediaFactory * factory);
+
+GST_RTSP_SERVER_API
+void                  gst_rtsp_media_factory_set_dscp_qos (GstRTSPMediaFactory * factory,
+                                                           gint dscp_qos);
+GST_RTSP_SERVER_API
+gint                  gst_rtsp_media_factory_get_dscp_qos (GstRTSPMediaFactory * factory);
+
 /* creating the media from the factory and a url */
 
 GST_RTSP_SERVER_API

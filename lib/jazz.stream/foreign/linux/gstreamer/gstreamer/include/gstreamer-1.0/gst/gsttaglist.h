@@ -49,65 +49,16 @@ G_BEGIN_DECLS
  * In the table below this is shown for the cases that a tag exists in the list
  * (A) or does not exists (!A) and combinations thereof.
  *
- * <table frame="all" colsep="1" rowsep="1">
- *   <title>merge mode</title>
- *   <tgroup cols='5' align='left'>
- *     <thead>
- *       <row>
- *         <entry>merge mode</entry>
- *         <entry>A + B</entry>
- *         <entry>A + !B</entry>
- *         <entry>!A + B</entry>
- *         <entry>!A + !B</entry>
- *       </row>
- *     </thead>
- *     <tbody>
- *       <row>
- *         <entry>REPLACE_ALL</entry>
- *         <entry>B</entry>
- *         <entry>-</entry>
- *         <entry>B</entry>
- *         <entry>-</entry>
- *       </row>
- *       <row>
- *         <entry>REPLACE</entry>
- *         <entry>B</entry>
- *         <entry>A</entry>
- *         <entry>B</entry>
- *         <entry>-</entry>
- *       </row>
- *       <row>
- *         <entry>APPEND</entry>
- *         <entry>A, B</entry>
- *         <entry>A</entry>
- *         <entry>B</entry>
- *         <entry>-</entry>
- *       </row>
- *       <row>
- *         <entry>PREPEND</entry>
- *         <entry>B, A</entry>
- *         <entry>A</entry>
- *         <entry>B</entry>
- *         <entry>-</entry>
- *       </row>
- *       <row>
- *         <entry>KEEP</entry>
- *         <entry>A</entry>
- *         <entry>A</entry>
- *         <entry>B</entry>
- *         <entry>-</entry>
- *       </row>
- *       <row>
- *         <entry>KEEP_ALL</entry>
- *         <entry>A</entry>
- *         <entry>A</entry>
- *         <entry>-</entry>
- *         <entry>-</entry>
- *       </row>
- *     </tbody>
- *   </tgroup>
- * </table>
+ * | merge mode  | A + B | A + !B | !A + B | !A + !B |
+ * | ----------- | ----- | ------ | ------ | ------- |
+ * | REPLACE_ALL | B     | ø      | B      | ø       |
+ * | REPLACE     | B     | A      | B      | ø       |
+ * | APPEND      | A, B  | A      | B      | ø       |
+ * | PREPEND     | B, A  | A      | B      | ø       |
+ * | KEEP        | A     | A      | B      | ø       |
+ * | KEEP_ALL    | A     | A      | ø      | ø       |
  */
+
 typedef enum {
   GST_TAG_MERGE_UNDEFINED,
   GST_TAG_MERGE_REPLACE_ALL,
@@ -450,7 +401,7 @@ gboolean     gst_tag_list_get_sample_index  (const GstTagList * list,
 
 /* refcounting */
 /**
- * gst_tag_list_ref:
+ * gst_tag_list_ref: (skip)
  * @taglist: the #GstTagList to reference
  *
  * Add a reference to a #GstTagList mini object.
@@ -463,6 +414,7 @@ gboolean     gst_tag_list_get_sample_index  (const GstTagList * list,
  *
  * Returns: the same #GstTagList mini object.
  */
+static inline GstTagList* gst_tag_list_ref(GstTagList* taglist);
 static inline GstTagList *
 gst_tag_list_ref (GstTagList * taglist)
 {
@@ -470,11 +422,12 @@ gst_tag_list_ref (GstTagList * taglist)
 }
 
 /**
- * gst_tag_list_unref:
+ * gst_tag_list_unref: (skip)
  * @taglist: a #GstTagList.
  *
  * Unref a #GstTagList, and and free all its memory when the refcount reaches 0.
  */
+static inline void gst_tag_list_unref(GstTagList* taglist);
 static inline void
 gst_tag_list_unref (GstTagList * taglist)
 {
@@ -482,7 +435,26 @@ gst_tag_list_unref (GstTagList * taglist)
 }
 
 /**
- * gst_tag_list_copy:
+ * gst_clear_tag_list: (skip)
+ * @taglist_ptr: a pointer to a #GstTagList reference
+ *
+ * Clears a reference to a #GstTagList.
+ *
+ * @taglist_ptr must not be %NULL.
+ *
+ * If the reference is %NULL then this function does nothing. Otherwise, the
+ * reference count of the taglist is decreased and the pointer is set to %NULL.
+ *
+ * Since: 1.16
+ */
+static inline void
+gst_clear_tag_list (GstTagList ** taglist_ptr)
+{
+  gst_clear_mini_object ((GstMiniObject **) taglist_ptr);
+}
+
+/**
+ * gst_tag_list_copy: (skip)
  * @taglist: a #GstTagList.
  *
  * Creates a new #GstTagList as a copy of the old @taglist. The new taglist
@@ -497,10 +469,59 @@ gst_tag_list_unref (GstTagList * taglist)
  *
  * Returns: the new #GstTagList
  */
+static inline GstTagList* gst_tag_list_copy(const GstTagList* taglist);
 static inline GstTagList *
 gst_tag_list_copy (const GstTagList * taglist)
 {
   return GST_TAG_LIST (gst_mini_object_copy (GST_MINI_OBJECT_CAST (taglist)));
+}
+
+/**
+ * gst_tag_list_replace:
+ * @old_taglist: (inout) (transfer full) (nullable): pointer to a pointer to a
+ *     #GstTagList to be replaced.
+ * @new_taglist: (transfer none) (allow-none): pointer to a #GstTagList that
+ *     will replace the tag list pointed to by @old_taglist.
+ *
+ * Modifies a pointer to a #GstTagList to point to a different #GstTagList. The
+ * modification is done atomically (so this is useful for ensuring thread
+ * safety in some cases), and the reference counts are updated appropriately
+ * (the old tag list is unreffed, the new is reffed).
+ *
+ * Either @new_taglist or the #GstTagList pointed to by @old_taglist may be
+ * %NULL.
+ *
+ * Returns: %TRUE if @new_taglist was different from @old_taglist
+ *
+ * Since: 1.16
+ */
+static inline gboolean
+gst_tag_list_replace (GstTagList **old_taglist, GstTagList *new_taglist)
+{
+    return gst_mini_object_replace ((GstMiniObject **) old_taglist,
+        (GstMiniObject *) new_taglist);
+}
+
+/**
+ * gst_tag_list_take:
+ * @old_taglist: (inout) (transfer full): pointer to a pointer to a #GstTagList
+ *     to be replaced.
+ * @new_taglist: (transfer full) (allow-none): pointer to a #GstTagList that
+ *     will replace the taglist pointed to by @old_taglist.
+ *
+ * Modifies a pointer to a #GstTagList to point to a different #GstTagList.
+ * This function is similar to gst_tag_list_replace() except that it takes
+ * ownership of @new_taglist.
+ *
+ * Returns: %TRUE if @new_taglist was different from @old_taglist
+ *
+ * Since: 1.16
+ */
+static inline gboolean
+gst_tag_list_take (GstTagList **old_taglist, GstTagList *new_taglist)
+{
+  return gst_mini_object_take ((GstMiniObject **) old_taglist,
+      (GstMiniObject *) new_taglist);
 }
 
 /**
@@ -871,7 +892,7 @@ gst_tag_list_copy (const GstTagList * taglist)
  * ISO-639-2 or ISO-639-1 code for the language the content is in (string)
  *
  * There is utility API in libgsttag in gst-plugins-base to obtain a translated
- * language name from the language code: gst_tag_get_language_name()
+ * language name from the language code: `gst_tag_get_language_name()`
  */
 #define GST_TAG_LANGUAGE_CODE          "language-code"
 /**
@@ -888,7 +909,7 @@ gst_tag_list_copy (const GstTagList * taglist)
  * GST_TAG_IMAGE:
  *
  * image (sample) (sample taglist should specify the content type and preferably
- * also set "image-type" field as #GstTagImageType)
+ * also set "image-type" field as `GstTagImageType`)
  */
 #define GST_TAG_IMAGE                  "image"
 /**
@@ -1135,7 +1156,7 @@ gst_tag_list_copy (const GstTagList * taglist)
 /**
  * GST_TAG_MIDI_BASE_NOTE:
  *
- * <ulink url="http://en.wikipedia.org/wiki/Note#Note_designation_in_accordance_with_octave_name">Midi note number</ulink>
+ * [Midi note number](http://en.wikipedia.org/wiki/Note#Note_designation_in_accordance_with_octave_name)
  * of the audio track. This is useful for sample instruments and in particular
  * for multi-samples.
  *
@@ -1160,9 +1181,7 @@ gst_tag_list_copy (const GstTagList * taglist)
  */
 #define GST_TAG_PRIVATE_DATA                         "private-data"
 
-#ifdef G_DEFINE_AUTOPTR_CLEANUP_FUNC
 G_DEFINE_AUTOPTR_CLEANUP_FUNC(GstTagList, gst_tag_list_unref)
-#endif
 
 G_END_DECLS
 

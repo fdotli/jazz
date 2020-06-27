@@ -104,7 +104,8 @@ struct _GstRTSPMessage
   guint8        *body;
   guint          body_size;
 
-  gpointer _gst_reserved[GST_PADDING];
+  GstBuffer     *body_buffer;
+  gpointer _gst_reserved[GST_PADDING-1];
 };
 
 GST_RTSP_API
@@ -258,6 +259,25 @@ GstRTSPResult      gst_rtsp_message_steal_body      (GstRTSPMessage *msg,
                                                      guint8 **data,
                                                      guint *size);
 
+GST_RTSP_API
+GstRTSPResult      gst_rtsp_message_set_body_buffer (GstRTSPMessage *msg,
+                                                     GstBuffer * buffer);
+
+GST_RTSP_API
+GstRTSPResult      gst_rtsp_message_take_body_buffer(GstRTSPMessage *msg,
+                                                     GstBuffer * buffer);
+
+GST_RTSP_API
+GstRTSPResult      gst_rtsp_message_get_body_buffer (const GstRTSPMessage *msg,
+                                                     GstBuffer ** buffer);
+
+GST_RTSP_API
+GstRTSPResult      gst_rtsp_message_steal_body_buffer(GstRTSPMessage *msg,
+                                                      GstBuffer ** buffer);
+
+GST_RTSP_API
+gboolean           gst_rtsp_message_has_body_buffer(const GstRTSPMessage *msg);
+
 typedef struct _GstRTSPAuthCredential GstRTSPAuthCredential;
 typedef struct _GstRTSPAuthParam GstRTSPAuthParam;
 
@@ -268,6 +288,8 @@ typedef struct _GstRTSPAuthParam GstRTSPAuthParam;
  * @authorization: The authorization for the basic schem
  *
  * RTSP Authentication credentials
+ *
+ * Since: 1.12
  */
 struct _GstRTSPAuthCredential {
   GstRTSPAuthMethod scheme;
@@ -286,6 +308,8 @@ struct _GstRTSPAuthCredential {
  * @value: The value of the parameter
  *
  * RTSP Authentication parameter
+ *
+ * Since: 1.12
  */
 struct _GstRTSPAuthParam {
   gchar *name;

@@ -57,6 +57,12 @@ GST_CHECK_API GList * buffers;
 GST_CHECK_API GMutex check_mutex;
 GST_CHECK_API GCond check_cond;
 
+/**
+ * GstCheckABIStruct:
+ * @name: The name of the structure
+ * @size: The current size of a structure
+ * @abi_size: The reference size of the structure
+ */
 typedef struct
 {
   const char *name;
@@ -65,13 +71,19 @@ typedef struct
 }
 GstCheckABIStruct;
 
+/**
+ * GstCheckLogFilter:
+ *
+ * Opaque structure containing data about a log filter
+ * function.
+ */
 typedef struct _GstCheckLogFilter GstCheckLogFilter;
 
 /**
  * GstCheckLogFilterFunc:
  * @log_domain: the log domain of the message
  * @log_level: the log level of the message
- * @message: the message that has occured
+ * @message: the message that has occurred
  * @user_data: user data
  *
  * A function that is called for messages matching the filter added by
@@ -416,7 +428,7 @@ G_STMT_START {								\
  * @a: a string literal or expression
  * @b: a string literal or expression
  *
- * This macro checks that @a and @b are equal (as per strcmp) and aborts if
+ * This macro checks that @a and @b are equal (as per g_strcmp0()) and aborts if
  * this is not the case, printing both expressions and the values they
  * evaluated to. This macro is for use in unit tests.
  */
@@ -432,7 +444,7 @@ G_STMT_START {                                                      \
  * @a: a string literal or expression
  * @b: a string literal or expression
  *
- * This macro checks that @a and @b are equal (as per strcmp) and aborts if
+ * This macro checks that @a and @b are equal (as per g_strcmp0()) and aborts if
  * this is not the case, printing both expressions and the values they
  * evaluated to. This macro is for use in unit tests.
  */
@@ -499,6 +511,24 @@ G_STMT_START {                                                    \
  * Since: 1.2
  */
 #define assert_equals_pointer(a, b) fail_unless_equals_pointer(a, b)
+
+/**
+ * fail_unless_equals_clocktime:
+ * @a: a #GstClockTime value or expression
+ * @b: a #GstClockTime value or expression
+ *
+ * This macro checks that @a and @b are equal and aborts if this is not the
+ * case, printing both expressions and the values they evaluated to. This
+ * macro is for use in unit tests.
+ */
+#define fail_unless_equals_clocktime(a, b)                              \
+G_STMT_START {                                                          \
+  GstClockTime first = a;                                                        \
+  GstClockTime second = b;                                                       \
+  fail_unless(first == second,                                          \
+    "'" #a "' (%" GST_TIME_FORMAT") is not equal to '" #b"' (%" GST_TIME_FORMAT")", \
+      GST_TIME_ARGS (first), GST_TIME_ARGS (second));       \
+} G_STMT_END;
 
 /***
  * thread test macros and variables
@@ -599,6 +629,10 @@ G_STMT_START {                                                  \
 #define THREAD_TEST_RUNNING()   (!!_gst_check_threads_running)
 
 /* additional assertions */
+
+#if GST_DISABLE_GLIB_CHECKS
+#define ASSERT_CRITICAL(code)
+#else
 #define ASSERT_CRITICAL(code)                                   \
 G_STMT_START {                                                  \
   _gst_check_expecting_log = TRUE;                              \
@@ -609,6 +643,7 @@ G_STMT_START {                                                  \
         "Expected g_critical, got nothing", NULL);              \
   _gst_check_expecting_log = FALSE;                             \
 } G_STMT_END
+#endif /* GST_DISABLE_GLIB_CHECKS */
 
 #define ASSERT_WARNING(code)                                    \
 G_STMT_START {                                                  \

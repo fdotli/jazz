@@ -29,12 +29,6 @@
 
 G_BEGIN_DECLS
 
-/**
- * GST_GL_BASE_MEMORY_ERROR:
- *
- * Error domain for GStreamer's GL memory module. Errors in this domain will be
- * from the #GstGLBaseMemoryError enumeration
- */
 #define GST_TYPE_GL_BASE_MEMORY (gst_gl_base_memory_get_type())
 GST_GL_API
 GType gst_gl_base_memory_get_type(void);
@@ -54,11 +48,17 @@ GType gst_gl_base_memory_allocator_get_type(void);
 
 GST_GL_API
 GQuark gst_gl_base_memory_error_quark (void);
+/**
+ * GST_GL_BASE_MEMORY_ERROR:
+ *
+ * Error domain for GStreamer's GL memory module. Errors in this domain will be
+ * from the #GstGLBaseMemoryError enumeration
+ */
 #define GST_GL_BASE_MEMORY_ERROR (gst_gl_base_memory_error_quark ())
 
 /**
  * GstGLBaseMemoryError:
- * @GST_GL_BASE_MEMORY_ERROR_FAILED: generic faliure
+ * @GST_GL_BASE_MEMORY_ERROR_FAILED: generic failure
  * @GST_GL_BASE_MEMORY_ERROR_OLD_LIBS: the implementation is too old and doesn't
  *                                     implement enough features
  * @GST_GL_BASE_MEMORY_ERROR_RESOURCE_UNAVAILABLE: a resource could not be found
@@ -107,7 +107,7 @@ struct _GstGLBaseMemory
 
   GstGLContext         *context;
 
-  /* <protected> */
+  /*< protected >*/
   GMutex                lock;
 
   GstMapFlags           map_flags;       /* cumulative map flags */
@@ -118,7 +118,7 @@ struct _GstGLBaseMemory
 
   GstGLQuery           *query;
 
-  /* <private> */
+  /*< private >*/
   gsize                 alloc_size;     /* because maxsize is used for mapping */
   gpointer              alloc_data;
 
@@ -215,7 +215,7 @@ struct _GstGLAllocationParams
   /* GST_GL_ALLOCATION_PARAMS_ALLOC_FLAG_WRAP_GPU_HANDLE only */
   gpointer                          gl_handle;
 
-  /* <private> */
+  /*< private >*/
   gpointer                          _padding[GST_PADDING];
 };
 
@@ -370,8 +370,8 @@ struct _GstGLBaseMemoryAllocatorClass
   GstGLBaseMemoryAllocatorUnmapFunction         unmap;
   GstGLBaseMemoryAllocatorCopyFunction          copy;
   GstGLBaseMemoryAllocatorDestroyFunction       destroy;
-  /* <private> */
 
+  /*< private >*/
   gpointer                                      _padding[GST_PADDING];
 };
 

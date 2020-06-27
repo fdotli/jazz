@@ -44,7 +44,7 @@ typedef struct _GstDevicePrivate GstDevicePrivate;
 
 /**
  * GstDevice:
- * @parent: The parent #GstObject strucuture.
+ * @parent: The parent #GstObject structure.
  *
  * A device object.
  *
@@ -62,7 +62,7 @@ struct _GstDevice {
 
 /**
  * GstDeviceClass:
- * @parent_class: The parent #GstObjectClass strucuture.
+ * @parent_class: The parent #GstObjectClass structure.
  * @create_element: Creates the fully configured element to access this device.
  *  Subclasses need to override this and return a new element.
  * @reconfigure_element: This only needs to be implemented by subclasses if the
@@ -113,9 +113,7 @@ gboolean        gst_device_has_classes        (GstDevice * device,
                                                const gchar * classes);
 
 
-#ifdef G_DEFINE_AUTOPTR_CLEANUP_FUNC
 G_DEFINE_AUTOPTR_CLEANUP_FUNC(GstDevice, gst_object_unref)
-#endif
 
 G_END_DECLS
 

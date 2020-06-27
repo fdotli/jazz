@@ -41,10 +41,10 @@ G_BEGIN_DECLS
 /**
  * GstBinFlags:
  * @GST_BIN_FLAG_NO_RESYNC: don't resync a state change when elements are
- *             added or linked in the bin (Since 1.0.5)
+ *             added or linked in the bin (Since: 1.0.5)
  * @GST_BIN_FLAG_STREAMS_AWARE: Indicates whether the bin can handle elements
  *             that add/remove source pads at any point in time without
- *             first posting a no-more-pads signal (Since 1.10)
+ *             first posting a no-more-pads signal (Since: 1.10)
  * @GST_BIN_FLAG_LAST: the last enum in the series of flags for bins.
  * Derived classes can use this as first value in a list of flags.
  *
@@ -237,6 +237,9 @@ GstIterator*	gst_bin_iterate_sources		 (GstBin *bin);
 GST_API
 GstIterator*	gst_bin_iterate_all_by_interface (GstBin *bin, GType iface);
 
+GST_API
+GstIterator*	gst_bin_iterate_all_by_element_factory_name (GstBin * bin, const gchar * factory_name);
+
 /* latency */
 
 GST_API
@@ -250,9 +253,7 @@ void            gst_bin_set_suppressed_flags (GstBin * bin, GstElementFlags flag
 GST_API
 GstElementFlags gst_bin_get_suppressed_flags (GstBin * bin);
 
-#ifdef G_DEFINE_AUTOPTR_CLEANUP_FUNC
 G_DEFINE_AUTOPTR_CLEANUP_FUNC(GstBin, gst_object_unref)
-#endif
 
 G_END_DECLS
 

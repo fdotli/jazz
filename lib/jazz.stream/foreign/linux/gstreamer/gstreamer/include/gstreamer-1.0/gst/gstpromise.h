@@ -124,6 +124,8 @@ gst_promise_unref (GstPromise * promise)
   gst_mini_object_unref (GST_MINI_OBJECT_CAST (promise));
 }
 
+G_DEFINE_AUTOPTR_CLEANUP_FUNC(GstPromise, gst_promise_unref)
+
 G_END_DECLS
 
 #endif /* __GST_PROMISE_H__ */

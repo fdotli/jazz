@@ -190,7 +190,7 @@ GST_API GstCaps * _gst_caps_none;
 
 /* refcounting */
 /**
- * gst_caps_ref:
+ * gst_caps_ref: (skip)
  * @caps: the #GstCaps to reference
  *
  * Add a reference to a #GstCaps object.
@@ -204,6 +204,7 @@ GST_API GstCaps * _gst_caps_none;
  *
  * Returns: the same #GstCaps object.
  */
+static inline GstCaps * gst_caps_ref (GstCaps * caps);
 static inline GstCaps *
 gst_caps_ref (GstCaps * caps)
 {
@@ -211,16 +212,36 @@ gst_caps_ref (GstCaps * caps)
 }
 
 /**
- * gst_caps_unref:
+ * gst_caps_unref: (skip)
  * @caps: a #GstCaps.
  *
  * Unref a #GstCaps and and free all its structures and the
  * structures' values when the refcount reaches 0.
  */
+static inline void gst_caps_unref (GstCaps * caps);
 static inline void
 gst_caps_unref (GstCaps * caps)
 {
   gst_mini_object_unref (GST_MINI_OBJECT_CAST (caps));
+}
+
+/**
+ * gst_clear_caps: (skip)
+ * @caps_ptr: a pointer to a #GstCaps reference
+ *
+ * Clears a reference to a #GstCaps.
+ *
+ * @caps_ptr must not be %NULL.
+ *
+ * If the reference is %NULL then this function does nothing. Otherwise, the
+ * reference count of the caps is decreased and the pointer is set to %NULL.
+ *
+ * Since: 1.16
+ */
+static inline void
+gst_clear_caps (GstCaps ** caps_ptr)
+{
+  gst_clear_mini_object ((GstMiniObject **) caps_ptr);
 }
 
 /* copy caps */
@@ -260,7 +281,7 @@ GstCaps * gst_caps_copy (const GstCaps * caps);
 #define         gst_caps_make_writable(caps)   GST_CAPS_CAST (gst_mini_object_make_writable (GST_MINI_OBJECT_CAST (caps)))
 
 /**
- * gst_caps_replace:
+ * gst_caps_replace: (skip)
  * @old_caps: (inout) (transfer full) (nullable): pointer to a pointer
  *     to a #GstCaps to be replaced.
  * @new_caps: (transfer none) (allow-none): pointer to a #GstCaps that will
@@ -275,6 +296,7 @@ GstCaps * gst_caps_copy (const GstCaps * caps);
  *
  * Returns: %TRUE if @new_caps was different from @old_caps
  */
+static inline gboolean gst_caps_replace (GstCaps **old_caps, GstCaps *new_caps);
 static inline gboolean
 gst_caps_replace (GstCaps **old_caps, GstCaps *new_caps)
 {
@@ -282,7 +304,7 @@ gst_caps_replace (GstCaps **old_caps, GstCaps *new_caps)
 }
 
 /**
- * gst_caps_take:
+ * gst_caps_take: (skip)
  * @old_caps: (inout) (transfer full): pointer to a pointer to a #GstCaps to be
  *     replaced.
  * @new_caps: (transfer full) (allow-none): pointer to a #GstCaps that will
@@ -294,6 +316,7 @@ gst_caps_replace (GstCaps **old_caps, GstCaps *new_caps)
  *
  * Returns: %TRUE if @new_caps was different from @old_caps
  */
+static inline gboolean gst_caps_take (GstCaps **old_caps, GstCaps *new_caps);
 static inline gboolean
 gst_caps_take (GstCaps **old_caps, GstCaps *new_caps)
 {
@@ -402,6 +425,9 @@ GstCaps *         gst_caps_new_full                (GstStructure  *struct1,
 GST_API
 GstCaps *         gst_caps_new_full_valist         (GstStructure  *structure,
                                                     va_list        var_args) G_GNUC_WARN_UNUSED_RESULT;
+/**
+ * gst_static_caps_get_type: (attributes doc.skip=true)
+ */
 GST_API
 GType             gst_static_caps_get_type         (void);
 
@@ -450,6 +476,10 @@ GST_API
 void              gst_caps_set_features            (GstCaps *caps,
                                                     guint          index,
                                                     GstCapsFeatures * features);
+GST_API
+void              gst_caps_set_features_simple        (GstCaps *caps,
+                                                       GstCapsFeatures * features);
+
 GST_API
 GstCapsFeatures * gst_caps_get_features            (const GstCaps *caps,
                                                     guint          index);
@@ -550,9 +580,7 @@ gchar *           gst_caps_to_string               (const GstCaps *caps) G_GNUC_
 GST_API
 GstCaps *         gst_caps_from_string             (const gchar   *string) G_GNUC_WARN_UNUSED_RESULT;
 
-#ifdef G_DEFINE_AUTOPTR_CLEANUP_FUNC
 G_DEFINE_AUTOPTR_CLEANUP_FUNC(GstCaps, gst_caps_unref)
-#endif
 
 G_END_DECLS
 

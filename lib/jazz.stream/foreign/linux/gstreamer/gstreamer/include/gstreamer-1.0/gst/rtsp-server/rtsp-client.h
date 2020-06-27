@@ -62,6 +62,27 @@ typedef gboolean (*GstRTSPClientSendFunc)      (GstRTSPClient *client,
                                                 gpointer user_data);
 
 /**
+ * GstRTSPClientSendMessagesFunc:
+ * @client: a #GstRTSPClient
+ * @messages: #GstRTSPMessage
+ * @n_messages: number of messages
+ * @close: close the connection
+ * @user_data: user data when registering the callback
+ *
+ * This callback is called when @client wants to send @messages. When @close is
+ * %TRUE, the connection should be closed when the message has been sent.
+ *
+ * Returns: %TRUE on success.
+ *
+ * Since: 1.16
+ */
+typedef gboolean (*GstRTSPClientSendMessagesFunc)      (GstRTSPClient *client,
+                                                        GstRTSPMessage *messages,
+                                                        guint n_messages,
+                                                        gboolean close,
+                                                        gpointer user_data);
+
+/**
  * GstRTSPClient:
  *
  * The client object represents the connection and its state with a client.
@@ -86,8 +107,14 @@ struct _GstRTSPClient {
  *    RTSP response(ctx->response) via a call to gst_rtsp_message_init_response()
  * @params_get: get parameters. This function should also initialize the
  *    RTSP response(ctx->response) via a call to gst_rtsp_message_init_response()
+ * @make_path_from_uri: called to create path from uri.
+ * @adjust_play_mode: called to give the application the possibility to adjust
+ *    the range, seek flags, rate and rate-control. Since 1.18
+ * @adjust_play_response: called to give the implementation the possibility to
+ *    adjust the response to a play request, for example if extra headers were
+ *    parsed when #GstRTSPClientClass.adjust_play_mode was called. Since 1.18
  * @tunnel_http_response: called when a response to the GET request is about to
- *   be sent for a tunneled connection. The response can be modified. Since 1.4
+ *   be sent for a tunneled connection. The response can be modified. Since: 1.4
  *
  * The client class structure.
  */
@@ -104,6 +131,15 @@ struct _GstRTSPClientClass {
   GstRTSPResult   (*params_set) (GstRTSPClient *client, GstRTSPContext *ctx);
   GstRTSPResult   (*params_get) (GstRTSPClient *client, GstRTSPContext *ctx);
   gchar *         (*make_path_from_uri) (GstRTSPClient *client, const GstRTSPUrl *uri);
+  GstRTSPStatusCode (*adjust_play_mode) (GstRTSPClient * client,
+                                         GstRTSPContext * context,
+                                         GstRTSPTimeRange ** range,
+                                         GstSeekFlags * flags,
+                                         gdouble * rate,
+                                         GstClockTime * trickmode_interval,
+                                         gboolean * enable_rate_control);
+  GstRTSPStatusCode (*adjust_play_response) (GstRTSPClient * client,
+                                            GstRTSPContext * context);
 
   /* signals */
   void     (*closed)                  (GstRTSPClient *client);
@@ -141,7 +177,7 @@ struct _GstRTSPClientClass {
   GstRTSPStatusCode (*pre_record_request)        (GstRTSPClient *client, GstRTSPContext *ctx);
 
   /*< private >*/
-  gpointer _gst_reserved[GST_PADDING_LARGE-16];
+  gpointer _gst_reserved[GST_PADDING_LARGE-18];
 };
 
 GST_RTSP_SERVER_API
@@ -163,6 +199,12 @@ void                  gst_rtsp_client_set_mount_points  (GstRTSPClient *client,
 
 GST_RTSP_SERVER_API
 GstRTSPMountPoints *  gst_rtsp_client_get_mount_points  (GstRTSPClient *client);
+
+GST_RTSP_SERVER_API
+void                  gst_rtsp_client_set_content_length_limit (GstRTSPClient *client, guint limit);
+
+GST_RTSP_SERVER_API
+guint                 gst_rtsp_client_get_content_length_limit (GstRTSPClient *client);
 
 GST_RTSP_SERVER_API
 void                  gst_rtsp_client_set_auth          (GstRTSPClient *client, GstRTSPAuth *auth);
@@ -194,6 +236,12 @@ void                  gst_rtsp_client_set_send_func     (GstRTSPClient *client,
                                                          GstRTSPClientSendFunc func,
                                                          gpointer user_data,
                                                          GDestroyNotify notify);
+
+GST_RTSP_SERVER_API
+void                  gst_rtsp_client_set_send_messages_func (GstRTSPClient *client,
+                                                              GstRTSPClientSendMessagesFunc func,
+                                                              gpointer user_data,
+                                                              GDestroyNotify notify);
 
 GST_RTSP_SERVER_API
 GstRTSPResult         gst_rtsp_client_handle_message    (GstRTSPClient *client,
@@ -232,6 +280,9 @@ GList *                gst_rtsp_client_session_filter    (GstRTSPClient *client,
                                                           GstRTSPClientSessionFilterFunc func,
                                                           gpointer user_data);
 
+GST_RTSP_SERVER_API
+GstRTSPStreamTransport * gst_rtsp_client_get_stream_transport (GstRTSPClient *client,
+                                                               guint8 channel);
 
 
 #ifdef G_DEFINE_AUTOPTR_CLEANUP_FUNC

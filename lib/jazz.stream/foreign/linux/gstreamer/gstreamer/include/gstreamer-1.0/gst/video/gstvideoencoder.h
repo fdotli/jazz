@@ -223,17 +223,17 @@ struct _GstVideoEncoder
  *                  Query handler on the sink pad. This function should
  *                  return TRUE if the query could be performed. Subclasses
  *                  should chain up to the parent implementation to invoke the
- *                  default handler. Since 1.4
+ *                  default handler. Since: 1.4
  * @src_query:      Optional.
  *                  Query handler on the source pad. This function should
  *                  return TRUE if the query could be performed. Subclasses
  *                  should chain up to the parent implementation to invoke the
- *                  default handler. Since 1.4
+ *                  default handler. Since: 1.4
  * @transform_meta: Optional. Transform the metadata on the input buffer to the
  *                  output buffer. By default this method is copies all meta without
  *                  tags and meta with only the "video" tag. subclasses can
  *                  implement this method and return %TRUE if the metadata is to be
- *                  copied. Since 1.6
+ *                  copied. Since: 1.6
  *
  * Subclasses can override any of the available virtual methods or not, as
  * needed. At minimum @handle_frame needs to be overridden, and @set_format
@@ -337,6 +337,10 @@ GstFlowReturn        gst_video_encoder_finish_frame (GstVideoEncoder *encoder,
 						     GstVideoCodecFrame *frame);
 
 GST_VIDEO_API
+GstFlowReturn        gst_video_encoder_finish_subframe (GstVideoEncoder * encoder,
+						     GstVideoCodecFrame * frame);
+
+GST_VIDEO_API
 GstCaps *            gst_video_encoder_proxy_getcaps (GstVideoEncoder * enc,
 						      GstCaps         * caps,
                                                       GstCaps         * filter);
@@ -377,9 +381,13 @@ gboolean             gst_video_encoder_is_qos_enabled (GstVideoEncoder * encoder
 GST_VIDEO_API
 GstClockTimeDiff     gst_video_encoder_get_max_encode_time (GstVideoEncoder *encoder, GstVideoCodecFrame * frame);
 
-#ifdef G_DEFINE_AUTOPTR_CLEANUP_FUNC
+GST_VIDEO_API
+void                 gst_video_encoder_set_min_force_key_unit_interval (GstVideoEncoder * encoder,
+                                                                        GstClockTime      interval);
+GST_VIDEO_API
+GstClockTime         gst_video_encoder_get_min_force_key_unit_interval (GstVideoEncoder * encoder);
+
 G_DEFINE_AUTOPTR_CLEANUP_FUNC(GstVideoEncoder, gst_object_unref)
-#endif
 
 G_END_DECLS
 

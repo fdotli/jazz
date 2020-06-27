@@ -27,6 +27,7 @@
 
 typedef struct _GstValidatePadMonitor GstValidatePadMonitor;
 typedef struct _GstValidatePadMonitorClass GstValidatePadMonitorClass;
+typedef struct _GstValidatePadSeekData GstValidatePadSeekData;
 
 #include <gst/validate/gst-validate-monitor.h>
 #include <gst/validate/media-descriptor-parser.h>
@@ -54,16 +55,14 @@ G_BEGIN_DECLS
 struct _GstValidatePadMonitor {
   GstValidateMonitor 	 parent;
 
-  GstValidateElementMonitor *element_monitor;
-
   gboolean       setup;
 
   GstPadChainFunction chain_func;
   GstPadEventFunction event_func;
   GstPadEventFullFunction event_full_func;
-  GstPadGetRangeFunction getrange_func;
   GstPadQueryFunction query_func;
   GstPadActivateModeFunction activatemode_func;
+  GstPadGetRangeFunction get_range_func;
 
   gulong pad_probe_id;
 
@@ -81,16 +80,16 @@ struct _GstValidatePadMonitor {
   gboolean is_eos;
 
   gboolean pending_flush_stop;
-  guint32 pending_flush_stop_seqnum;
-  guint32 pending_flush_start_seqnum;
   guint32 pending_newsegment_seqnum;
   guint32 pending_eos_seqnum;
+
+  /* List of GstValidatePadSeekData containing pending/current seeks */
+  GList *seeks;
+  GstValidatePadSeekData *current_seek;
 
   /* Whether the next buffer should have a DISCONT flag on it, because
    * it's the first one, or follows a SEGMENT and/or a FLUSH */
   gboolean pending_buffer_discont;
-
-  GstClockTime pending_seek_accurate_time;
 
   GstEvent *expected_segment;
   GPtrArray *serialized_events;
@@ -125,6 +124,14 @@ struct _GstValidatePadMonitor {
   /* The GstBuffer that should arrive next in a GList */
   GList *current_buf;
   gboolean check_buffers;
+
+  /* 'min-buffer-frequency' config check */
+  gdouble min_buf_freq;
+  gint buffers_pushed;
+  gint last_buffers_pushed;
+  GstClockTime min_buf_freq_interval_ts;
+  GstClockTime min_buf_freq_first_buffer_ts;
+  GstClockTime min_buf_freq_start;
 };
 
 /**

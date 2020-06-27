@@ -74,7 +74,7 @@ typedef void (*GstGLWindowResizeCB) (gpointer data, guint width, guint height);
  * GST_GL_WINDOW_CB:
  * @f: the function to cast
  *
- * Cast to the currect function type for generic window callbacks
+ * Cast to the current function type for generic window callbacks
  */
 #define	GST_GL_WINDOW_CB(f)			 ((GstGLWindowCB) (f))
 
@@ -82,7 +82,7 @@ typedef void (*GstGLWindowResizeCB) (gpointer data, guint width, guint height);
  * GST_GL_WINDOW_RESIZE_CB:
  * @f: the function to cast
  *
- * Cast to the currect function type for window resize callbacks
+ * Cast to the current function type for window resize callbacks
  */
 #define	GST_GL_WINDOW_RESIZE_CB(f)		 ((GstGLWindowResizeCB) (f))
 
@@ -148,6 +148,9 @@ struct _GstGLWindow {
  * @show: request that the window be shown to the user
  * @set_render_rectangle: request a rectangle to render into.  See #GstVideoOverlay
  * @queue_resize: request a resize to occur when possible
+ * @controls_viewport: Whether the window takes care of glViewport setup.
+ *                     and the user does not need to deal with viewports
+ * @has_output_surface: Whether the window has output surface or not. (Since: 1.18)
  */
 struct _GstGLWindowClass {
   GstObjectClass parent_class;
@@ -168,9 +171,11 @@ struct _GstGLWindowClass {
   void     (*show)               (GstGLWindow *window);
   gboolean (*set_render_rectangle)(GstGLWindow *window, gint x, gint y, gint width, gint height);
   void     (*queue_resize)       (GstGLWindow *window);
+  gboolean (*controls_viewport)  (GstGLWindow *window);
+  gboolean (*has_output_surface) (GstGLWindow *window);
 
   /*< private >*/
-  gpointer _reserved[GST_PADDING];
+  gpointer _reserved[GST_PADDING-2];
 };
 
 GST_GL_API
@@ -229,6 +234,13 @@ void     gst_gl_window_send_mouse_event     (GstGLWindow * window,
                                              double posx,
                                              double posy);
 
+GST_GL_API
+void     gst_gl_window_send_scroll_event    (GstGLWindow * window,
+                                             double posx,
+                                             double posy,
+                                             double delta_x,
+                                             double delta_y);
+
 /* surfaces/rendering */
 GST_GL_API
 void     gst_gl_window_queue_resize         (GstGLWindow *window);
@@ -250,6 +262,8 @@ gboolean gst_gl_window_set_render_rectangle   (GstGLWindow * window,
                                                gint y,
                                                gint width,
                                                gint height);
+GST_GL_API
+gboolean gst_gl_window_controls_viewport      (GstGLWindow * window);
 
 /* subclass usage only */
 GST_GL_API
@@ -259,6 +273,9 @@ GST_GL_API
 GstGLContext * gst_gl_window_get_context    (GstGLWindow *window);
 GST_GL_API
 guintptr       gst_gl_window_get_display    (GstGLWindow *window);
+
+GST_GL_API
+gboolean       gst_gl_window_has_output_surface (GstGLWindow *window);
 
 G_END_DECLS
 

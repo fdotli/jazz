@@ -22,6 +22,7 @@
 #define __GST_GL_H__
 
 #include <gst/gl/gstgl_fwd.h>
+#include <gst/gl/gl-enumtypes.h>
 #include <gst/gl/gstglapi.h>
 #include <gst/gl/gstglconfig.h>
 #include <gst/gl/gstglcontext.h>
@@ -44,6 +45,7 @@
 #include <gst/gl/gstglbufferpool.h>
 #include <gst/gl/gstglframebuffer.h>
 #include <gst/gl/gstglbasefilter.h>
+#include <gst/gl/gstglbasesrc.h>
 #include <gst/gl/gstglviewconvert.h>
 #include <gst/gl/gstglfilter.h>
 #include <gst/gl/gstglsyncmeta.h>
