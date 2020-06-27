@@ -54,20 +54,20 @@ G_BEGIN_DECLS
  *
  * The minor version of GStreamer at compile time:
  */
-#define GST_VERSION_MINOR (16)
+#define GST_VERSION_MINOR (17)
 /**
  * GST_VERSION_MICRO:
  *
  * The micro version of GStreamer at compile time:
  */
-#define GST_VERSION_MICRO (2)
+#define GST_VERSION_MICRO (1)
 /**
  * GST_VERSION_NANO:
  *
  * The nano version of GStreamer at compile time:
  * Actual releases have 0, GIT versions have 1, prerelease versions have 2-...
  */
-#define GST_VERSION_NANO (0)
+#define GST_VERSION_NANO (1)
 
 /**
  * GST_CHECK_VERSION:

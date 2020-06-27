@@ -26,6 +26,13 @@
 
 G_BEGIN_DECLS
 
+/**
+ * GstTracerRecord:
+ *
+ * The opaque GstTracerRecord instance structure
+ *
+ * Since: 1.8
+ */
 typedef struct _GstTracerRecord GstTracerRecord;
 typedef struct _GstTracerRecordClass GstTracerRecordClass;
 
@@ -40,9 +47,7 @@ typedef struct _GstTracerRecordClass GstTracerRecordClass;
 GST_API
 GType gst_tracer_record_get_type          (void);
 
-#ifdef G_DEFINE_AUTOPTR_CLEANUP_FUNC
 G_DEFINE_AUTOPTR_CLEANUP_FUNC(GstTracerRecord, gst_object_unref)
-#endif
 
 /**
  * GstTracerValueScope:

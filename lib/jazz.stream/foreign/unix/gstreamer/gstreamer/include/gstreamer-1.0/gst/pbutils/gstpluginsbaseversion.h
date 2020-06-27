@@ -36,20 +36,20 @@ G_BEGIN_DECLS
  *
  * The minor version of GStreamer's gst-plugins-base libraries at compile time.
  */
-#define GST_PLUGINS_BASE_VERSION_MINOR (16)
+#define GST_PLUGINS_BASE_VERSION_MINOR (17)
 /**
  * GST_PLUGINS_BASE_VERSION_MICRO:
  *
  * The micro version of GStreamer's gst-plugins-base libraries at compile time.
  */
-#define GST_PLUGINS_BASE_VERSION_MICRO (2)
+#define GST_PLUGINS_BASE_VERSION_MICRO (1)
 /**
  * GST_PLUGINS_BASE_VERSION_NANO:
  *
  * The nano version of GStreamer's gst-plugins-base libraries at compile time.
  * Actual releases have 0, GIT versions have 1, prerelease versions have 2-...
  */
-#define GST_PLUGINS_BASE_VERSION_NANO (0)
+#define GST_PLUGINS_BASE_VERSION_NANO (1)
 
 /**
  * GST_CHECK_PLUGIN_BASE_VERSION:

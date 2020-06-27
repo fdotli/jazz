@@ -235,6 +235,14 @@ struct _GstAggregator
  *                     downstream allocation query.
  * @propose_allocation: Optional.
  *                     Allows the subclass to handle the allocation query from upstream.
+ * @negotiate: Optional.
+ *             Negotiate the caps with the peer (Since: 1.18).
+ * @sink_event_pre_queue: Optional.
+ *                        Called when an event is received on a sink pad before queueing up
+ *                        serialized events. The subclass should always chain up (Since: 1.18).
+ * @sink_query_pre_queue: Optional.
+ *                        Called when a query is received on a sink pad before queueing up
+ *                        serialized queries. The subclass should always chain up (Since: 1.18).
  *
  * The aggregator base class will handle in a thread-safe way all manners of
  * concurrent flushes, seeks, pad additions and removals, leaving to the
@@ -311,8 +319,19 @@ struct _GstAggregatorClass {
                                            GstAggregatorPad * pad,
                                            GstQuery * decide_query,
                                            GstQuery * query);
+
+  gboolean          (*negotiate) (GstAggregator * self);
+
+  GstFlowReturn     (*sink_event_pre_queue)     (GstAggregator    *  aggregator,
+                                                 GstAggregatorPad *  aggregator_pad,
+                                                 GstEvent         *  event);
+
+  gboolean          (*sink_query_pre_queue)     (GstAggregator    *  aggregator,
+                                                 GstAggregatorPad *  aggregator_pad,
+                                                 GstQuery         *  query);
+
   /*< private >*/
-  gpointer          _gst_reserved[GST_PADDING_LARGE];
+  gpointer          _gst_reserved[GST_PADDING_LARGE-3];
 };
 
 /************************************
@@ -342,6 +361,9 @@ void           gst_aggregator_set_src_caps          (GstAggregator              
                                                      GstCaps                      *  caps);
 
 GST_BASE_API
+gboolean        gst_aggregator_negotiate            (GstAggregator                * self);
+
+GST_BASE_API
 void           gst_aggregator_set_latency           (GstAggregator                *  self,
                                                      GstClockTime                    min_latency,
                                                      GstClockTime                    max_latency);
@@ -363,12 +385,33 @@ void            gst_aggregator_get_allocator       (GstAggregator               
 GST_BASE_API
 GstClockTime    gst_aggregator_simple_get_next_time (GstAggregator                * self);
 
+GST_BASE_API
+void            gst_aggregator_update_segment       (GstAggregator                * self,
+                                                     const GstSegment             * segment);
+
+/**
+ * GstAggregatorStartTimeSelection:
+ * @GST_AGGREGATOR_START_TIME_SELECTION_ZERO: Start at running time 0.
+ * @GST_AGGREGATOR_START_TIME_SELECTION_FIRST: Start at the running time of
+ * the first buffer that is received.
+ * @GST_AGGREGATOR_START_TIME_SELECTION_SET: Start at the running time
+ * selected by the `start-time` property.
+ *
+ * Since: 1.18
+ */
+typedef enum
+{
+  GST_AGGREGATOR_START_TIME_SELECTION_ZERO,
+  GST_AGGREGATOR_START_TIME_SELECTION_FIRST,
+  GST_AGGREGATOR_START_TIME_SELECTION_SET
+} GstAggregatorStartTimeSelection;
+
+GST_BASE_API
+GType           gst_aggregator_start_time_selection_get_type (void);
 
 G_END_DECLS
 
-#ifdef G_DEFINE_AUTOPTR_CLEANUP_FUNC
 G_DEFINE_AUTOPTR_CLEANUP_FUNC(GstAggregator, gst_object_unref)
 G_DEFINE_AUTOPTR_CLEANUP_FUNC(GstAggregatorPad, gst_object_unref)
-#endif
 
 #endif /* __GST_AGGREGATOR_H__ */

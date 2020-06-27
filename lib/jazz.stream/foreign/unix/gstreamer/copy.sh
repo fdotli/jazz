@@ -1,7 +1,8 @@
 #! /bin/sh
 
-GSTREAMER_LIB="/usr/lib/x86_64-linux-gnu"
-GSTREAMER_INCLUDE="/usr/include/gstreamer-1.0"
+GSTREAMER_LIB="/home/cartier/Devel/gstreamer/cerbero/build/dist/linux_x86_64/lib"
+GSTREAMER_LIBEXEC="/home/cartier/Devel/gstreamer/cerbero/build/dist/linux_x86_64/libexec"
+GSTREAMER_INCLUDE="/home/cartier/Devel/gstreamer/cerbero/build/dist/linux_x86_64/include"
 GLIB_INCLUDE="/usr/include/glib-2.0"
 
 if [ -d gstreamer ]; then
@@ -85,13 +86,13 @@ cpshared libgstrtp-1.0.so 0
 cpshared libgsttag-1.0.so 0
 cpshared libgstvideo-1.0.so 0
 cpshared libjpeg.so 8
-cpshared liblzma.so 5
+#cpshared liblzma.so 5
 cpshared libogg.so 0
 cpshared libpng16.so 16
 cpshared libvorbis.so 0
 cpshared libvorbisenc.so 2
-cpshared libx264.so 155
-cpshared libbz2.so 1.0
+cpshared libx264.so 157
+#cpshared libbz2.so 1.0
 cpshared libz.so 1
 
 
@@ -102,7 +103,7 @@ cpshared libz.so 1
 mkdir gstreamer/libexec
 mkdir gstreamer/libexec/gstreamer-1.0
 echo Copying gst-plugin-scanner
-cp $GSTREAMER_LIB/gstreamer1.0/gstreamer-1.0/gst-plugin-scanner gstreamer/libexec/gstreamer-1.0
+cp $GSTREAMER_LIBEXEC/gstreamer-1.0/gst-plugin-scanner gstreamer/libexec/gstreamer-1.0
 patchelf --set-rpath '$ORIGIN/../../../lib/gstreamer-1.0' gstreamer/libexec/gstreamer-1.0/gst-plugin-scanner
 
 
@@ -111,14 +112,14 @@ patchelf --set-rpath '$ORIGIN/../../../lib/gstreamer-1.0' gstreamer/libexec/gstr
 #
 
 mkdir gstreamer/include
-[ -r $GSTREAMER_INCLUDE ] && \
+[ -r $GSTREAMER_INCLUDE/gstreamer-1.0 ] && \
   echo Copying gstreamer include && \
-  cp -r $GSTREAMER_INCLUDE gstreamer/include || \
+  cp -r $GSTREAMER_INCLUDE/gstreamer-1.0 gstreamer/include || \
   echo 'Failed copying gstreamer include files'
 
-[ -r $GLIB_INCLUDE ] && \
+[ -r $GSTREAMER_INCLUDE/glib-2.0 ] && \
   echo Copying glib include && \
-  cp -r $GLIB_INCLUDE gstreamer/include || \
+  cp -r $GSTREAMER_INCLUDE/glib-2.0 gstreamer/include || \
   echo 'Failed copying glib-2.0 include files'
 
 [ -r $GSTREAMER_LIB/glib-2.0 ] && \

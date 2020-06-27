@@ -90,6 +90,16 @@ gboolean gst_video_color_matrix_get_Kr_Kb (GstVideoColorMatrix matrix, gdouble *
  *                                range. Used for BT.2020 with 12 bits per
  *                                component. Since: 1.6
  * @GST_VIDEO_TRANSFER_ADOBERGB: Gamma 2.19921875. Since: 1.8
+ * @GST_VIDEO_TRANSFER_BT2020_10: Rec. ITU-R BT.2020-2 with 10 bits per component.
+ *                                (functionally the same as the values
+ *                                GST_VIDEO_TRANSFER_BT709 and GST_VIDEO_TRANSFER_BT2020_12).
+ *                                Since: 1.18
+ * @GST_VIDEO_TRANSFER_SMPTE2084: SMPTE ST 2084 for 10, 12, 14, and 16-bit systems.
+ *                                Known as perceptual quantization (PQ)
+ *                                Since: 1.18
+ * @GST_VIDEO_TRANSFER_ARIB_STD_B67: Association of Radio Industries and Businesses (ARIB)
+ *                                   STD-B67 and Rec. ITU-R BT.2100-1 hybrid loggamma (HLG) system
+ *                                   Since: 1.18
  *
  * The video transfer function defines the formula for converting between
  * non-linear RGB (R'G'B') and linear RGB
@@ -107,7 +117,10 @@ typedef enum {
   GST_VIDEO_TRANSFER_LOG100,
   GST_VIDEO_TRANSFER_LOG316,
   GST_VIDEO_TRANSFER_BT2020_12,
-  GST_VIDEO_TRANSFER_ADOBERGB
+  GST_VIDEO_TRANSFER_ADOBERGB,
+  GST_VIDEO_TRANSFER_BT2020_10,
+  GST_VIDEO_TRANSFER_SMPTE2084,
+  GST_VIDEO_TRANSFER_ARIB_STD_B67
 } GstVideoTransferFunction;
 
 GST_VIDEO_API
@@ -205,6 +218,9 @@ typedef struct {
 #define GST_VIDEO_COLORIMETRY_SMPTE240M   "smpte240m"
 #define GST_VIDEO_COLORIMETRY_SRGB        "sRGB"
 #define GST_VIDEO_COLORIMETRY_BT2020      "bt2020"
+#define GST_VIDEO_COLORIMETRY_BT2020_10   "bt2020-10"
+#define GST_VIDEO_COLORIMETRY_BT2100_PQ   "bt2100-pq"
+#define GST_VIDEO_COLORIMETRY_BT2100_HLG  "bt2100-hlg"
 
 GST_VIDEO_API
 gboolean     gst_video_colorimetry_matches     (const GstVideoColorimetry *cinfo, const gchar *color);
@@ -226,6 +242,28 @@ void         gst_video_color_range_offsets     (GstVideoColorRange range,
                                                 gint offset[GST_VIDEO_MAX_COMPONENTS],
                                                 gint scale[GST_VIDEO_MAX_COMPONENTS]);
 
+/* conversion between GStreamer color{matrix,transfer,primaries} enum and
+ * values defined by ISO/IEC 23001-8 and ITU-T H.273 specification.
+ * Also H264 and H265 specifications follow the color{matrix,transfer,primaries}
+ * values */
+
+GST_VIDEO_API
+guint                     gst_video_color_matrix_to_iso      (GstVideoColorMatrix matrix);
+
+GST_VIDEO_API
+guint                     gst_video_color_transfer_to_iso    (GstVideoTransferFunction func);
+
+GST_VIDEO_API
+guint                     gst_video_color_primaries_to_iso   (GstVideoColorPrimaries primaries);
+
+GST_VIDEO_API
+GstVideoColorMatrix       gst_video_color_matrix_from_iso    (guint value);
+
+GST_VIDEO_API
+GstVideoTransferFunction  gst_video_color_transfer_from_iso  (guint value);
+
+GST_VIDEO_API
+GstVideoColorPrimaries    gst_video_color_primaries_from_iso (guint value);
 
 G_END_DECLS
 

@@ -43,7 +43,7 @@ typedef struct _GstEGLImage GstEGLImage;
  * @data: user data passed to gst_egl_image_new_wrapped()
  *
  * Function to be called when the GstEGLImage is destroyed. It should free
- * the associated #EGLImage if necessary
+ * the associated `EGLImage` if necessary
  */
 typedef void (*GstEGLImageDestroyNotify) (GstEGLImage * image,
     gpointer data);
@@ -93,6 +93,12 @@ GstEGLImage *           gst_egl_image_from_dmabuf_direct        (GstGLContext * 
                                                                  gint *fd,
                                                                  gsize *offset,
                                                                  GstVideoInfo * in_info);
+GST_GL_API
+GstEGLImage *           gst_egl_image_from_dmabuf_direct_target (GstGLContext * context,
+                                                                 gint *fd,
+                                                                 gsize *offset,
+                                                                 GstVideoInfo * in_info,
+                                                                 GstGLTextureTarget target);
 
 GST_GL_API
 gboolean                gst_egl_image_export_dmabuf             (GstEGLImage *image, int *fd, gint *stride, gsize *offset);

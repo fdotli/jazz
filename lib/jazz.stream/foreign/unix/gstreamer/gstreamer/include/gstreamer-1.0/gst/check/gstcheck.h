@@ -57,6 +57,12 @@ GST_CHECK_API GList * buffers;
 GST_CHECK_API GMutex check_mutex;
 GST_CHECK_API GCond check_cond;
 
+/**
+ * GstCheckABIStruct:
+ * @name: The name of the structure
+ * @size: The current size of a structure
+ * @abi_size: The reference size of the structure
+ */
 typedef struct
 {
   const char *name;
@@ -65,6 +71,12 @@ typedef struct
 }
 GstCheckABIStruct;
 
+/**
+ * GstCheckLogFilter:
+ *
+ * Opaque structure containing data about a log filter
+ * function.
+ */
 typedef struct _GstCheckLogFilter GstCheckLogFilter;
 
 /**
@@ -416,7 +428,7 @@ G_STMT_START {								\
  * @a: a string literal or expression
  * @b: a string literal or expression
  *
- * This macro checks that @a and @b are equal (as per strcmp) and aborts if
+ * This macro checks that @a and @b are equal (as per g_strcmp0()) and aborts if
  * this is not the case, printing both expressions and the values they
  * evaluated to. This macro is for use in unit tests.
  */
@@ -432,7 +444,7 @@ G_STMT_START {                                                      \
  * @a: a string literal or expression
  * @b: a string literal or expression
  *
- * This macro checks that @a and @b are equal (as per strcmp) and aborts if
+ * This macro checks that @a and @b are equal (as per g_strcmp0()) and aborts if
  * this is not the case, printing both expressions and the values they
  * evaluated to. This macro is for use in unit tests.
  */
