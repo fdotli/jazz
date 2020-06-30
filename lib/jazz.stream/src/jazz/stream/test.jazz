@@ -326,12 +326,11 @@
         (listener (open-stream-listener))
         (pipeline (gst-pipeline "filesrc name=src"
                                 "decodebin name=decoder"
-                                (list "decoder."
-                                      "queue"
-                                      "audioconvert"
-                                      "audioresample"
-                                      "audio/x-raw, format=S16LE, layout=interleaved, rate=48000, channels=2"
-                                      "appsink name=audioappsink")))
+                                "queue"
+                                "audioconvert"
+                                "audioresample"
+                                "audio/x-raw, format=S16LE, layout=interleaved, rate=48000, channels=2"
+                                "appsink name=audioappsink"))
         (filename (or media "~/Media/test.ogg")))
     (with-unref ((source (gst_bin_get_by_name pipeline "src"))
                  (appsink (gst_bin_get_by_name pipeline "audioappsink")))
