@@ -79,7 +79,6 @@
 ;; info
 ;; mic
 ;; clock
-;; clock2
 ;; camera
 ;; screen
 ;; app
@@ -229,8 +228,9 @@
     ((none))
     ((info) (test-info))
     ((mic) (test-mic))
-    ((clock) (test-clock))
-    ((clock2) (test-clock2))
+    ((clockbase) (test-clockbase))
+    ((clockbad) (test-clockbad))
+    ((clockhack) (test-clockhack))
     ((camera) (test-camera))
     ((screen) (test-screen))
     ((draw) (test-draw))
@@ -297,145 +297,178 @@
 ;;;
 
 
-(definition public (test-clock)
-  (let ((audio-pipe (open-vector))
-        (frame-size 0)
-        (frame-count 0)
-        (draw-count 0))
-    ;; input
-    (let ((listener (open-stream-listener))
-          (audio-listener (open-stream-listener))
-          (pipeline (gst-pipeline (tie "filesrc name=filesrc")
-                                  "decodebin name=decoder"
-                                  (list "decoder."
-                                        "queue"
-                                        "audioconvert"
-                                        "audioresample"
-                                        "audio/x-raw, format=S16LE, layout=interleaved, rate=48000, channels=2"
-                                        "appsink name=audioappsink")))
-          (filename (or media "~/Media/test.ogg")))
-      (with-unref ((source (gst_bin_get_by_name pipeline "filesrc"))
-                   (audio-appsink (gst_bin_get_by_name pipeline "audioappsink")))
-        (let ((audio-buffer (make-u8vector 65536))
-              (audio-info (make-u64vector app-sink-info-size))
-              (process-messages (pipeline-messages-processor pipeline print?: debug?)))
-          (gst_app_sink_connect_signals audio-appsink audio-listener)
-          (g_object_set_string source "location" (path-normalize filename))
-          (gst_element_set_state pipeline GST_STATE_PLAYING)
-          (let (;; audio input
-                (audio-input-thread
-                  (new-thread
-                    (lambda ()
-                      (let (loop)
-                        (let ((size (gst_app_sink_read audio-listener audio-appsink audio-buffer audio-info)))
-                          (let ((dts (u64vector-ref audio-info 0))
-                                (pts (u64vector-ref audio-info 1))
-                                (duration (u64vector-ref audio-info 2)))
-                            (write (list (u8vector-copy audio-buffer) size dts pts duration) audio-pipe)
-                            (force-output audio-pipe)))
-                        (process-messages)
-                        (loop)))
-                    'audio-input))
-                ;; audio output
-                (audio-output-thread
-                  (new-thread
-                    (lambda ()
-                      (let ((codec 'none))
-                        (let ((pipeline (gst-pipeline "appsrc name=src"
-                                                      "queue"
-                                                      (and (eq? codec 'opus) "opusdec name=dec")
-                                                      (and (eq? codec 'vorbis) "vorbisdec name=dec")
-                                                      (cond-expand
-                                                        (windows "directsoundsink buffer-time=200000 name=sink")
-                                                        (mac "osxaudiosink buffer-time=200000 name=sink")
-                                                        (else "pulsesink buffer-time=200000 name=sink")))))
-                          (gst_object_set_name pipeline "output")
-                          (with-unref ((src (gst_bin_get_by_name pipeline "src")))
-                            (let ((process-messages (pipeline-messages-processor pipeline print?: debug?)))
-                              (when monitor
-                                (unless (eq? monitor 'messages)
-                                  (when (neq? codec 'none)
-                                    (gst_monitor pipeline monitor "enc" "identity" "dec"))
-                                  (gst_monitor pipeline monitor "sink"))
-                                (when (memq? monitor '(messages all))
-                                  (gst_monitor_messages pipeline)))
-                              (case codec
-                                ((vorbis)
-                                 (gst-app-src-set-caps src "audio/x-vorbis"))
-                                (else
-                                 (gst-app-src-set-caps src "audio/x-raw"
-                                   "format"   'string "S16LE"
-                                   "layout"   'string "interleaved"
-                                   "rate"     'int    48000
-                                   "channels" 'int    2)))
-                              (g-object-set src
-                                            "is-live"     'boolean #t
-                                            "stream-type" 'int     GST_APP_STREAM_TYPE_STREAM
-                                            "format"      'int     GST_FORMAT_TIME)
-                              (gst_element_set_state pipeline GST_STATE_PLAYING)
-                              (terminal '*** (gst_object_get_name (gst_pipeline_get_clock pipeline)))
-                              (process-messages)
-                              (let (loop)
-                                (let ((info (read audio-pipe)))
-                                  (bind (buffer size dts pts duration) info
-                                    (gst_app_src_write_now src buffer size 0 duration)))
-                                (process-messages)
-                                (loop)))))))
-                    'audio-output)))
-            (thread-base-priority-set! audio-input-thread 100)
-            (thread-base-priority-set! audio-output-thread 100)
-            (thread-start! audio-input-thread)
-            (thread-start! audio-output-thread)))))
-    ;; application
-    (boot-environment (new Test-Application))))
-
-
-(definition public (test-clock2)
+(definition public (test-clockbase)
   ;; audio
   (thread-start!
     (new-thread
       (lambda ()
-        (let ((pipeline (gst_pipeline_new "audio-player"))
-              (filename (or media "~/Media/test.ogg")))
-          (let ((source   (gst_element_factory_make "filesrc"       "file-source"))
-                (demuxer  (gst_element_factory_make "oggdemux"      "ogg-demuxer"))
-                (decoder  (gst_element_factory_make "vorbisdec"     "vorbis-decoder"))
-                (conv     (gst_element_factory_make "audioconvert"  "converter"))
-                (resamp   (gst_element_factory_make "audioresample" "resampler"))
-                (winconv  (cond-expand
-                            (windows (gst_element_factory_make "audioconvert" "winconv"))
-                            (else)))
-                (sink     (gst_element_factory_make "autoaudiosink" "audio-output")))
-            (g_object_set_string source "location" (path-normalize filename))
-            (let ((bus (gst_pipeline_get_bus pipeline)))
-              (gst_bin_add pipeline source)
-              (gst_bin_add pipeline demuxer)
-              (gst_bin_add pipeline decoder)
-              (gst_bin_add pipeline conv)
-              (gst_bin_add pipeline resamp)
-              (cond-expand
-                (windows (gst_bin_add pipeline winconv))
-                (else))
-              (gst_bin_add pipeline sink)
-              (gst_element_link source demuxer)
-              (gst_element_link demuxer decoder)
-              (gst_element_link decoder conv)
-              (gst_element_link conv resamp)
-              (cond-expand
-                (windows
-                 (gst_element_link resamp winconv)
-                 (gst_element_link winconv sink))
-                (else
-                 (gst_element_link resamp sink)))
-              (gst_signal_connect_to demuxer "pad-added" decoder)
-              (gst_monitor pipeline monitor "enc" "identity" "dec")
-              (gst_monitor pipeline monitor "sink")
+        (let ((filename (or media "~/Media/test.ogg")))
+          (let ((pipeline (gst-pipeline "filesrc name=src"
+                                        "oggdemux name=demux"
+                                        "vorbisdec name=dec"
+                                        (cond-expand
+                                          (windows "directsoundsink buffer-time=200000 name=sink")
+                                          (mac "osxaudiosink buffer-time=200000 name=sink")
+                                          (else "pulsesink buffer-time=200000 name=sink")))))
+            (with-unref ((source (gst_bin_get_by_name pipeline "src")))
+              (g_object_set_string source "location" (path-normalize filename))
+              (gst_monitor pipeline 'events "sink")
               (gst_monitor_messages pipeline)
               (gst_element_set_state pipeline GST_STATE_PLAYING)
               (terminal '*** (gst_object_get_name (gst_pipeline_get_clock pipeline)))))))
       'ogg))
   ;; application
   (boot-environment (new Test-Application)))
+
+
+(definition public (test-clockbad)
+  (let ((pipe (open-vector))
+        (listener (open-stream-listener))
+        (pipeline (gst-pipeline "filesrc name=src"
+                                "decodebin name=decoder"
+                                (list "decoder."
+                                      "queue"
+                                      "audioconvert"
+                                      "audioresample"
+                                      "audio/x-raw, format=S16LE, layout=interleaved, rate=48000, channels=2"
+                                      "appsink name=audioappsink")))
+        (filename (or media "~/Media/test.ogg")))
+    (with-unref ((source (gst_bin_get_by_name pipeline "src"))
+                 (appsink (gst_bin_get_by_name pipeline "audioappsink")))
+      (let ((buffer (make-u8vector 65536))
+            (info (make-u64vector app-sink-info-size)))
+        (gst_app_sink_connect_signals appsink listener)
+        (g_object_set_string source "location" (path-normalize filename))
+        (gst_element_set_state pipeline GST_STATE_PLAYING)
+        ;; input
+        (thread-start!
+          (new-thread
+            (lambda ()
+              (let (loop)
+                (let ((size (gst_app_sink_read listener appsink buffer info)))
+                  (let ((dts (u64vector-ref info 0))
+                        (pts (u64vector-ref info 1))
+                        (duration (u64vector-ref info 2)))
+                    (write (list (u8vector-copy buffer) size dts pts duration) pipe)
+                    (force-output pipe)))
+                (loop)))
+            'input))
+        ;; output
+        (thread-start!
+          (new-thread
+            (lambda ()
+              (let ((pipeline (gst-pipeline "appsrc name=src"
+                                            "queue"
+                                            (cond-expand
+                                              (windows "directsoundsink buffer-time=200000 name=sink")
+                                              (mac "osxaudiosink buffer-time=200000 name=sink")
+                                              (else "pulsesink buffer-time=200000 name=sink")))))
+                (gst_object_set_name pipeline "output")
+                (with-unref ((src (gst_bin_get_by_name pipeline "src")))
+                  (gst_monitor pipeline 'events "sink")
+                  (gst_monitor_messages pipeline)
+                  (gst-app-src-set-caps src "audio/x-raw"
+                    "format"   'string "S16LE"
+                    "layout"   'string "interleaved"
+                    "rate"     'int    48000
+                    "channels" 'int    2)
+                  (g-object-set src
+                                "is-live"     'boolean #t
+                                "stream-type" 'int     GST_APP_STREAM_TYPE_STREAM
+                                "format"      'int     GST_FORMAT_TIME)
+                  (gst_element_set_state pipeline GST_STATE_PLAYING)
+                  (terminal '*** (gst_object_get_name (gst_pipeline_get_clock pipeline)))
+                  (let (loop)
+                    (let ((info (read pipe)))
+                      (bind (buffer size dts pts duration) info
+                        (gst_app_src_write_now src buffer size 0 duration)))
+                    (loop)))))
+            'output))))
+    ;; application
+    (boot-environment (new Test-Application))))
+
+
+(definition public (test-clockhack)
+  (let ((pipe (open-vector))
+        (listener (open-stream-listener))
+        (pipeline (gst-pipeline "filesrc name=src"
+                                "decodebin name=decoder"
+                                (list "decoder."
+                                      "queue"
+                                      "audioconvert"
+                                      "audioresample"
+                                      "audio/x-raw, format=S16LE, layout=interleaved, rate=48000, channels=2"
+                                      "appsink name=audioappsink")))
+        (filename (or media "~/Media/test.ogg")))
+    (with-unref ((source (gst_bin_get_by_name pipeline "src"))
+                 (appsink (gst_bin_get_by_name pipeline "audioappsink")))
+      (let ((buffer (make-u8vector 65536))
+            (info (make-u64vector app-sink-info-size)))
+        (gst_app_sink_connect_signals appsink listener)
+        (g_object_set_string source "location" (path-normalize filename))
+        (gst_element_set_state pipeline GST_STATE_PAUSED)
+        @hack
+        (with-unref ((elem (gst_bin_get_by_name pipeline "src")))
+          (with-unref ((pad (gst_element_get_static_pad elem "src")))
+            (terminal 111 elem pad)
+            (let ((caps (gst-new-caps "audio/x-raw"
+                                      "format" 'string "S16LE"
+                                      "layout" 'string "interleaved"
+                                      "rate" 'int 48000
+                                      "channels" 'int 2)))
+              (terminal 222 caps)
+              (gst_pad_push_event pad (gst_event_new_stream_start "stream"))
+              (terminal 333)
+              (gst_pad_push_event pad (gst_event_new_caps caps))
+              (terminal 444)
+              (gst_caps_unref caps))))
+        (gst_element_set_state pipeline GST_STATE_PLAYING)
+        ;; input
+        (thread-start!
+          (new-thread
+            (lambda ()
+              (let (loop)
+                (let ((size (gst_app_sink_read listener appsink buffer info)))
+                  (let ((dts (u64vector-ref info 0))
+                        (pts (u64vector-ref info 1))
+                        (duration (u64vector-ref info 2)))
+                    (write (list (u8vector-copy buffer) size dts pts duration) pipe)
+                    (force-output pipe)))
+                (loop)))
+            'input))
+        ;; output
+        (thread-start!
+          (new-thread
+            (lambda ()
+              (let ((pipeline (gst-pipeline "appsrc name=src"
+                                            "queue"
+                                            (cond-expand
+                                              (windows "directsoundsink buffer-time=200000 name=sink")
+                                              (mac "osxaudiosink buffer-time=200000 name=sink")
+                                              (else "pulsesink buffer-time=200000 name=sink")))))
+                (gst_object_set_name pipeline "output")
+                (with-unref ((src (gst_bin_get_by_name pipeline "src")))
+                  (gst_monitor pipeline 'events "sink")
+                  (gst_monitor_messages pipeline)
+                  (gst-app-src-set-caps src "audio/x-raw"
+                    "format"   'string "S16LE"
+                    "layout"   'string "interleaved"
+                    "rate"     'int    48000
+                    "channels" 'int    2)
+                  (g-object-set src
+                                "is-live"     'boolean #t
+                                "stream-type" 'int     GST_APP_STREAM_TYPE_STREAM
+                                "format"      'int     GST_FORMAT_TIME)
+                  (gst_element_set_state pipeline GST_STATE_PLAYING)
+                  (terminal '*** (gst_object_get_name (gst_pipeline_get_clock pipeline)))
+                  (let (loop)
+                    (let ((info (read pipe)))
+                      (bind (buffer size dts pts duration) info
+                        (gst_app_src_write_now src buffer size 0 duration)))
+                    (loop)))))
+            'output))))
+    ;; application
+    (boot-environment (new Test-Application))))
 
 
 ;;;
