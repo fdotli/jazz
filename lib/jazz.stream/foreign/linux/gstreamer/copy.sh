@@ -31,11 +31,13 @@ cpshared() {
 mkdir gstreamer/lib
 mkdir gstreamer/lib/gstreamer-1.0
 
+cpplugin gstreamer-1.0/libgstadder
 cpplugin gstreamer-1.0/libgstalpha
 cpplugin gstreamer-1.0/libgstalsa
 cpplugin gstreamer-1.0/libgstapp
 cpplugin gstreamer-1.0/libgstaudioconvert
 cpplugin gstreamer-1.0/libgstaudiofx
+cpplugin gstreamer-1.0/libgstaudiomixer
 cpplugin gstreamer-1.0/libgstaudioparsers
 cpplugin gstreamer-1.0/libgstaudioresample
 cpplugin gstreamer-1.0/libgstaudiotestsrc

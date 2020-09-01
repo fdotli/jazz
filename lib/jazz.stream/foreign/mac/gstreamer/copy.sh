@@ -19,11 +19,13 @@ cplib() {
 
 mkdir gstreamer/lib
 mkdir gstreamer/lib/gstreamer-1.0
+cplib gstreamer-1.0/libgstadder.dylib
 cplib gstreamer-1.0/libgstalpha.dylib
 cplib gstreamer-1.0/libgstapp.dylib
 cplib gstreamer-1.0/libgstapplemedia.dylib
 cplib gstreamer-1.0/libgstaudioconvert.dylib
 cplib gstreamer-1.0/libgstaudiofx.dylib
+cplib gstreamer-1.0/libgstaudiomixer.dylib
 cplib gstreamer-1.0/libgstaudioparsers.dylib
 cplib gstreamer-1.0/libgstaudioresample.dylib
 cplib gstreamer-1.0/libgstaudiotestsrc.dylib
@@ -50,6 +52,7 @@ cplib gstreamer-1.0/libgstvideotestsrc.dylib
 cplib gstreamer-1.0/libgstvolume.dylib
 cplib gstreamer-1.0/libgstvorbis.dylib
 cplib gstreamer-1.0/libgstwavparse.dylib
+cplib gstreamer-1.0/libgstwebrtcdsp.dylib
 cplib gstreamer-1.0/libgstx264.dylib
 cplib libavcodec.58.dylib
 cplib libavfilter.7.dylib
@@ -65,6 +68,7 @@ cplib libgraphene-1.0.0.dylib
 cplib libgstallocators-1.0.0.dylib
 cplib libgstapp-1.0.0.dylib
 cplib libgstaudio-1.0.0.dylib
+cplib libgstbadaudio-1.0.0.dylib
 cplib libgstbase-1.0.0.dylib
 cplib libgstcodecparsers-1.0.0.dylib
 cplib libgstfft-1.0.0.dylib
@@ -84,6 +88,7 @@ cplib libpng16.16.dylib
 cplib libswresample.3.dylib
 cplib libvorbis.0.dylib
 cplib libvorbisenc.2.dylib
+cplib libwebrtc_audio_processing.0.dylib
 cplib libx264.148.dylib
 cplib libz.1.dylib
 
