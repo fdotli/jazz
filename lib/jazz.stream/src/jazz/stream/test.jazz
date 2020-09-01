@@ -180,11 +180,8 @@
 (definition remaining
   #f)
 
-(definition user
-  #f)
 
-
-(jazz:split-command-line (command-arguments) '("fps" "info" "debug" "trace" "graph" "latency" "clock") '("debugger" "r" "run" "script" "audio" "audio-codec" "video" "size" "codec" "framerate" "bitrate" "window" "media" "spawn" "period" "lag" "monitor" "user") #f
+(jazz:split-command-line (command-arguments) '("fps" "info" "debug" "trace" "graph" "latency" "clock") '("debugger" "r" "run" "script" "audio" "audio-codec" "video" "size" "codec" "framerate" "bitrate" "window" "media" "spawn" "period" "lag" "monitor") #f
   (lambda (commands options remain)
     (define (string-argument arg)
       arg)
@@ -239,8 +236,7 @@
     (set! latency? (find-option "latency" options #f))
     (set! clock? (find-option "clock" options #f))
     (set! monitor (or (symbol-argument (find-option "monitor" options)) monitor))
-    (set! remaining remain)
-    (set! user (symbol-argument (find-option "user" options)))))
+    (set! remaining remain)))
 
 
 @comment
@@ -1080,9 +1076,8 @@ description-end
                              "queue"
                              "webrtcechoprobe"
                              "osxaudiosink name=sink"
-                             (and (eq? user 'silence)
-                                  (list "audiotestsrc do-timestamp=true wave=silence is-live=true name=silence"
-                                        "mix."))))
+                             (list "audiotestsrc do-timestamp=true wave=silence is-live=true name=silence"
+                                   "mix.")))
         (microphone #f)
         (channels '()))
     (define (force-audioclock)
@@ -1499,8 +1494,11 @@ description-end
     (boot-environment (new Test-Application closer: closer))))
 
 
-(definition audio-port
+(definition udp-port
   5001)
+
+(definition udp-local?
+  #f)
 
 ;; simulate together using udp src/sink
 (definition public (test-audiot)
@@ -1515,9 +1513,8 @@ description-end
                              "queue"
                              "webrtcechoprobe"
                              "osxaudiosink name=sink"
-                             (and (eq? user 'silence)
-                                  (list "audiotestsrc do-timestamp=true wave=silence is-live=true name=silence"
-                                        "mix."))))
+                             (list "audiotestsrc do-timestamp=true wave=silence is-live=true name=silence"
+                                   "mix.")))
         (microphone #f)
         (channels '()))
     (define (force-audioclock)
@@ -1555,9 +1552,10 @@ description-end
             (output (gst-pipeline "appsrc name=src"
                                   ".audio_%u"
                                   (list "oggmux name=mux"
+                                        "queue"
                                         (gst-element "udpsink"
-                                                     host: (getenv "UDPREMOTE")
-                                                     port: audio-port)))))
+                                                     host: (getenv (if udp-local? "UDPLOCAL" "UDPREMOTE"))
+                                                     port: udp-port)))))
         (gst_object_set_name bin "microphone")
         (gst_object_set_name output "output")
         (gst_bin_add audio bin)
@@ -1618,7 +1616,7 @@ description-end
     
     (define (create-channel location volume)
       (let ((input (gst-pipeline (gst-element "udpsrc"
-                                              port: audio-port)
+                                              port: udp-port)
                                  "oggdemux"
                                  "appsink name=sink"))
             (bin (gst-bin "appsrc name=src"
