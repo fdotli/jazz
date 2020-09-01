@@ -110,3 +110,10 @@ mkdir gstreamer/include
 cp -r $GSTREAMER/include/gstreamer-1.0 gstreamer/include
 cp -r $GSTREAMER/include/glib-2.0 gstreamer/include
 cp -r $GSTREAMER/lib/glib-2.0 gstreamer/lib
+
+
+#
+# rnnoise
+#
+
+cp ~/Devel/gstreamer/rnnoise/build/plugin/libgstrnnoise.dylib gstreamer/lib/gstreamer-1.0
