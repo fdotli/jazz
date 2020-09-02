@@ -1498,7 +1498,7 @@ description-end
   5001)
 
 (definition udp-local?
-  #f)
+  #t)
 
 ;; simulate together using udp src/sink
 (definition public (test-audiot)
@@ -1550,12 +1550,11 @@ description-end
                           "vorbisenc"
                           "appsink sync=false name=sink"))
             (output (gst-pipeline "appsrc name=src"
-                                  ".audio_%u"
-                                  (list "oggmux name=mux"
-                                        "queue"
-                                        (gst-element "udpsink"
-                                                     host: (getenv (if udp-local? "UDPLOCAL" "UDPREMOTE"))
-                                                     port: udp-port)))))
+                                  "rtpvorbispay config-interval=1"
+                                  "queue"
+                                  (gst-element "udpsink"
+                                               host: (getenv (if udp-local? "UDPLOCAL" "UDPREMOTE"))
+                                               port: udp-port))))
         (gst_object_set_name bin "microphone")
         (gst_object_set_name output "output")
         (gst_bin_add audio bin)
@@ -1617,7 +1616,8 @@ description-end
     (define (create-channel location volume)
       (let ((input (gst-pipeline (gst-element "udpsrc"
                                               port: udp-port)
-                                 "oggdemux"
+                                 "application/x-rtp, payload=127, media=audio, clock-rate=48000, encoding-name=VORBIS"
+                                 "rtpvorbisdepay"
                                  "appsink name=sink"))
             (bin (gst-bin "appsrc name=src"
                           "vorbisdec"
@@ -1682,20 +1682,10 @@ description-end
     (force-audioclock)
     (gst_element_set_state audio GST_STATE_PLAYING)
     (setup-microphone)
-    (let ((simulate-thread
-            (new-thread
-              (lambda ()
-                (sleep 5)
-                (add-channel aretha .2)
-                (sleep 5)
-                (remove-channel koln))
-              'simulate)))
-      (add-channel audio-location 1.)
-        @w(add-channel koln 1.)
-        (generate-graph audio "audiot")
-        (report-latency audio)
-        (report-clock audio)
-        @w(thread-start! simulate-thread))
+    (add-channel "remote" 1.)
+    (generate-graph audio "audiot")
+    (report-latency audio)
+    (report-clock audio)
     ;; application
     (boot-environment (new Test-Application closer: closer))))
 
