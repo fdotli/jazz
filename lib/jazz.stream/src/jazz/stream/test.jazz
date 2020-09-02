@@ -1498,7 +1498,7 @@ description-end
   5001)
 
 (definition udp-local?
-  #t)
+  #f)
 
 ;; simulate together using udp src/sink
 (definition public (test-audiot)
